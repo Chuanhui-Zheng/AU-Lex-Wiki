@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ act_name }} — Section Graph — AU-Lex-Wiki{% endblock %}
+
+{% block content %}
+<div class="graph-card">
+  <div class="graph-toolbar">
+    <div><div class="eyebrow">Architecture view</div><h1>{{ act_name }} — Section Graph</h1><p class="graph-desc">Nodes are sections. Edges are cross-references. Click a node to open the provision.</p></div>
+    <a class="btn-secondary" href="/act/{{ act_id }}">Back to Act</a>
+  </div>
+  <div class="graph-legend"><span>cross-reference</span><span>definition / delegation</span><span>click node to read</span></div>
+  <div id="graph" aria-label="Section relationship graph"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const ACT_ID = {{ act_id }};
+fetch(`/api/graph/${ACT_ID}`)
+  .then(r => r.json())
+  .then(data => renderGraph(data));
+
+function renderGraph({nodes, links}) {
+  const graph = document.getElementById('graph');
+  const visibleNodes = nodes.slice(0, 140);
+  const visibleIds = new Set(visibleNodes.map(node => String(node.id)));
+  const visibleLinks = links.filter(link => visibleIds.has(String(link.source)) && visibleIds.has(String(link.target)));
+  const W = Math.max(graph.clientWidth || 900, 640);
+  const H = 640;
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('role', 'img');
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#5d83b3';
+  const positions = new Map();
+  visibleNodes.forEach((node, index) => {
+    const angle = (index / Math.max(visibleNodes.length, 1)) * Math.PI * 2;
+    const radius = Math.min(W, H) * .34 * (index % 3 === 0 ? .78 : 1);
+    positions.set(String(node.id), {x: W / 2 + Math.cos(angle) * radius, y: H / 2 + Math.sin(angle) * radius});
+  });
+  visibleLinks.forEach(link => {
+    const start = positions.get(String(link.source));
+    const end = positions.get(String(link.target));
+    if (!start || !end) return;
+    const line = document.createElementNS(svgNS, 'line');
+    line.setAttribute('x1', start.x); line.setAttribute('y1', start.y);
+    line.setAttribute('x2', end.x); line.setAttribute('y2', end.y);
+    line.setAttribute('class', 'graph-link');
+    line.setAttribute('stroke', accent);
+    svg.appendChild(line);
+  });
+  visibleNodes.forEach(node => {
+    const point = positions.get(String(node.id));
+    const group = document.createElementNS(svgNS, 'g');
+    group.setAttribute('class', 'graph-node');
+    group.setAttribute('transform', `translate(${point.x},${point.y})`);
+    group.addEventListener('click', () => { window.location.href = `/section/${node.id}`; });
+    const circle = document.createElementNS(svgNS, 'circle');
+    circle.setAttribute('r', visibleNodes.length > 80 ? '5' : '7');
+    circle.setAttribute('fill', accent);
+    group.appendChild(circle);
+    const title = document.createElementNS(svgNS, 'title');
+    title.textContent = node.title || node.label;
+    group.appendChild(title);
+    if (visibleNodes.length <= 80) {
+      const text = document.createElementNS(svgNS, 'text');
+      text.setAttribute('x', '10'); text.setAttribute('dy', '.35em');
+      text.textContent = node.label;
+      group.appendChild(text);
+    }
+    svg.appendChild(group);
+  });
+  graph.replaceChildren(svg);
+}
+</script>
+{% endblock %}

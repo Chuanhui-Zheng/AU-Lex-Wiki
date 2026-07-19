@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% block title %}AU-Lex-Wiki — Commonwealth Legislation{% endblock %}
+
+{% block content %}
+<div class="workspace-shell">
+  <section class="hero hero-workspace">
+    <div class="eyebrow"><span class="status-dot"></span> Commonwealth legislation workspace</div>
+    <h1>Find the rule.<br><em>See the evidence.</em></h1>
+    <p class="hero-sub">Search Australian Commonwealth legislation section by section, then ask a grounded question with the source text in view.</p>
+    <form class="hero-search" action="/search" method="get">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <input type="search" name="q" placeholder="Try “privacy collection notice”" aria-label="Search legislation">
+      <button type="submit">Search</button>
+    </form>
+    <div class="suggestions">
+      <span>Try:</span>
+      <a href="/search?q=personal+information">personal information</a>
+      <a href="/search?q=director+duty">director duty</a>
+      <a href="/search?q=reasonable+steps">reasonable steps</a>
+    </div>
+  </section>
+
+  <section class="metrics-grid" aria-label="Corpus coverage">
+    <div class="metric-card"><span class="metric-label">In-force Acts</span><strong>{{ acts|length }}</strong><span class="metric-note">official register corpus</span></div>
+    <div class="metric-card"><span class="metric-label">Sections</span><strong>{{ "{:,}".format(section_count) }}</strong><span class="metric-note">latest compilations</span></div>
+    <div class="metric-card"><span class="metric-label">Cross-references</span><strong>{{ "{:,}".format(ref_count) }}</strong><span class="metric-note">linked provisions</span></div>
+  </section>
+</div>
+
+<section class="library-workspace">
+  <div class="library-toolbar">
+    <div><div class="eyebrow">Your legal library</div><h2>Browse Acts</h2></div>
+    <span class="library-hint">Select an Act to read it here</span>
+  </div>
+  <div class="library-split">
+    <div class="act-list" id="actList">
+    {% for act in acts %}
+    <a href="/act/{{ act.id }}" class="act-card" data-act-id="{{ act.id }}">
+      <span class="act-index">{{ "%02d"|format(loop.index) }}</span>
+      <span class="act-name">{{ act.name }}</span>
+      {% if act.year %}<span class="act-year">{{ act.year }}</span>{% endif %}
+    </a>
+    {% endfor %}
+    </div>
+    <section class="act-preview" id="actPreview" aria-live="polite">
+      <div class="preview-placeholder">
+        <div class="empty-chat-mark">A</div>
+        <h2>Choose an Act</h2>
+        <p>The Act overview and sections will appear here without leaving the library.</p>
+      </div>
+    </section>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const actList = document.getElementById('actList');
+const actPreview = document.getElementById('actPreview');
+let selectedActData = null;
+
+function renderAct(data) {
+  const act = data.act;
+  selectedActData = data;
+  const sectionCount = data.sections.length;
+  const header = document.createElement('div');
+  header.className = 'preview-header';
+  header.innerHTML = `<div class="eyebrow">Act overview</div><h2></h2><p class="preview-meta"></p>`;
+  header.querySelector('h2').textContent = act.name;
+  header.querySelector('.preview-meta').textContent = `${act.year || 'Commonwealth'} · ${sectionCount} indexed sections`;
+  if (act.source_url) {
+    const source = document.createElement('a');
+    source.href = act.source_url;
+    source.target = '_blank';
+    source.rel = 'noopener';
+    source.className = 'preview-source';
+    source.textContent = 'Official source';
+    header.appendChild(source);
+  }
+  const graphLink = document.createElement('a');
+  graphLink.href = `/graph/${act.id}`;
+  graphLink.className = 'preview-source';
+  graphLink.textContent = 'View section graph';
+  header.appendChild(graphLink);
+
+  const list = document.createElement('div');
+  list.className = 'preview-sections';
+  data.sections.forEach(section => {
+    const row = document.createElement('a');
+    row.className = `preview-section depth-${section.depth || 0}`;
+    row.href = '#section-preview';
+    row.addEventListener('click', event => {
+      event.preventDefault();
+      loadSectionPreview(section.id, () => renderAct(data));
+    });
+    const no = document.createElement('span');
+    no.className = 'preview-section-no';
+    no.textContent = `s ${section.section_no}`;
+    const copy = document.createElement('span');
+    copy.className = 'preview-section-copy';
+    copy.innerHTML = '<strong></strong><span></span>';
+    copy.querySelector('strong').textContent = section.section_heading || 'Untitled provision';
+    copy.querySelector('span').textContent = section.body_preview || '';
+    row.append(no, copy);
+    list.appendChild(row);
+  });
+  actPreview.replaceChildren(header, list);
+}
+
+async function loadSectionPreview(sectionId, returnView) {
+  actPreview.innerHTML = '<div class="preview-loading">Loading the section…</div>';
+  try {
+    const response = await fetch(`/api/section/${sectionId}`);
+    if (!response.ok) throw new Error('Section could not be loaded');
+    renderSectionPreview(await response.json(), returnView);
+  } catch (_) {
+    actPreview.innerHTML = '<div class="preview-loading">This section could not be loaded. Try again.</div>';
+  }
+}
+
+function renderSectionPreview(section, returnView) {
+  const panel = document.createElement('article');
+  panel.className = 'preview-section-panel';
+  const header = document.createElement('div');
+  header.className = 'preview-header';
+  header.innerHTML = '<div class="eyebrow">Section preview</div><h2></h2><p class="preview-meta"></p>';
+  header.querySelector('h2').textContent = `${section.act_name} — s ${section.section_no}`;
+  header.querySelector('.preview-meta').textContent = section.section_heading || 'Indexed provision';
+  const back = document.createElement('button');
+  back.type = 'button';
+  back.className = 'preview-back';
+  back.textContent = 'Back';
+  back.addEventListener('click', returnView);
+  header.appendChild(back);
+
+  const body = document.createElement('div');
+  body.className = 'preview-section-body';
+  body.textContent = section.body || '';
+  panel.append(header, body);
+  if (section.source_url) {
+    const source = document.createElement('a');
+    source.href = section.source_url;
+    source.target = '_blank';
+    source.rel = 'noopener';
+    source.className = 'preview-source';
+    source.textContent = 'Open official source';
+    panel.appendChild(source);
+  }
+  actPreview.replaceChildren(panel);
+}
+
+function renderLibraryChat(data = null, query = '') {
+  const act = selectedActData?.act;
+  const panel = document.createElement('div');
+  panel.className = 'library-chat-panel';
+
+  const header = document.createElement('div');
+  header.className = 'preview-header library-chat-header';
+  header.innerHTML = '<div><div class="eyebrow">Ask the corpus</div><h2>AU-Lex Assistant</h2><p class="preview-meta"></p></div><div class="library-chat-actions"></div>';
+  header.querySelector('.preview-meta').textContent = act
+    ? `${act.name} · scoped to this Act`
+    : 'Grounded in the indexed legislation';
+  const actions = header.querySelector('.library-chat-actions');
+  const mode = document.createElement('div');
+  mode.className = 'mode-toggle';
+  mode.innerHTML = '<button type="button" class="mode-option is-active" data-library-mode="offline">Offline</button><button type="button" class="mode-option" data-library-mode="online">Online</button>';
+  actions.appendChild(mode);
+  const settings = document.createElement('button');
+  settings.type = 'button';
+  settings.className = 'preview-back';
+  settings.textContent = 'Settings';
+  settings.addEventListener('click', () => window.openAskSettings?.());
+  actions.appendChild(settings);
+  const back = document.createElement('button');
+  back.type = 'button';
+  back.className = 'preview-back';
+  back.textContent = 'Back';
+  back.addEventListener('click', () => selectedActData ? renderAct(selectedActData) : renderPlaceholder());
+  actions.appendChild(back);
+
+  const answerWindow = document.createElement('div');
+  answerWindow.className = 'library-chat-answer';
+  if (data) {
+    if (query) {
+      const question = document.createElement('div');
+      question.className = 'preview-chat-question';
+      question.innerHTML = '<span>YOU</span><p></p>';
+      question.querySelector('p').textContent = query;
+      answerWindow.appendChild(question);
+    }
+    const answer = document.createElement('article');
+    answer.className = 'preview-chat-answer';
+    const label = document.createElement('div');
+    label.className = 'eyebrow';
+    label.textContent = 'AU-LEX ASSISTANT';
+    const copy = document.createElement('p');
+    copy.className = 'preview-chat-copy';
+    copy.textContent = data.answer || data.error || 'No answer returned.';
+    answer.append(label, copy);
+    if (data.sources?.length) {
+      const sources = document.createElement('div');
+      sources.className = 'preview-chat-sources';
+      const sourceLabel = document.createElement('strong');
+      sourceLabel.textContent = 'Evidence';
+      sources.appendChild(sourceLabel);
+      data.sources.forEach(source => {
+        const link = document.createElement('a');
+        link.href = source.id ? '#section-preview' : (source.source_url || '#');
+        link.textContent = `${source.marker || 'Source'} · ${source.act_name} s ${source.section_no}`;
+        if (source.id) {
+          link.addEventListener('click', event => {
+            event.preventDefault();
+            loadSectionPreview(source.id, () => renderLibraryChat(data, query));
+          });
+        } else {
+          link.target = '_blank';
+          link.rel = 'noopener';
+        }
+        sources.appendChild(link);
+      });
+      answer.appendChild(sources);
+    }
+    answerWindow.appendChild(answer);
+  } else {
+    answerWindow.innerHTML = '<div class="ask-empty-state">Ask a question about the selected Act. The answer and evidence will stay in this panel.</div>';
+  }
+
+  const form = document.createElement('form');
+  form.className = 'library-chat-form';
+  form.innerHTML = '<textarea rows="1" placeholder="Ask about this legislation…"></textarea><button type="submit">Ask</button>';
+  const textarea = form.querySelector('textarea');
+  const submit = form.querySelector('button');
+  let askMode = 'offline';
+  mode.querySelectorAll('[data-library-mode]').forEach(button => button.addEventListener('click', () => {
+    askMode = button.dataset.libraryMode;
+    mode.querySelectorAll('[data-library-mode]').forEach(item => item.classList.toggle('is-active', item === button));
+    textarea.placeholder = askMode === 'offline' ? 'Search the local indexed provisions…' : 'Ask the model about this legislation…';
+  }));
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const question = textarea.value.trim();
+    if (!question) return;
+    submit.disabled = true;
+    submit.textContent = '…';
+    try {
+      const result = await window.aulexSubmitQuestion(question, askMode, act?.id || null);
+      renderLibraryChat(result, question);
+    } catch (_) {
+      renderLibraryChat({answer: 'The Ask service could not be reached.'}, question);
+    }
+  });
+  panel.append(header, answerWindow, form);
+  actPreview.replaceChildren(panel);
+  textarea.focus();
+}
+
+function renderPlaceholder() {
+  actPreview.innerHTML = '<div class="preview-placeholder"><div class="empty-chat-mark">A</div><h2>Choose an Act</h2><p>The Act overview and sections will appear here without leaving the library.</p></div>';
+}
+
+window.openLibraryAsk = () => renderLibraryChat();
+window.handleLibraryAsk = (data, query) => renderLibraryChat(data, query);
+
+actList?.querySelectorAll('[data-act-id]').forEach(card => {
+  card.addEventListener('click', async event => {
+    event.preventDefault();
+    actList.querySelectorAll('.is-selected').forEach(item => item.classList.remove('is-selected'));
+    card.classList.add('is-selected');
+    selectedActData = null;
+    actPreview.innerHTML = '<div class="preview-loading">Loading the Act overview…</div>';
+    try {
+      const response = await fetch(`/api/act/${card.dataset.actId}`);
+      if (!response.ok) throw new Error('Act could not be loaded');
+      renderAct(await response.json());
+    } catch (error) {
+      actPreview.innerHTML = '<div class="preview-loading">This Act could not be loaded. Try again.</div>';
+    }
+  });
+});
+
+</script>
+{% endblock %}

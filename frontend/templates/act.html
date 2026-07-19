@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ act.name }} — AU-Lex-Wiki{% endblock %}
+
+{% block sidebar %}
+<nav class="toc-sidebar">
+  <h3>Sections</h3>
+  <ul>
+    {% for s in sections %}
+    <li class="depth-{{ s.depth }}">
+      <a href="/section/{{ s.id }}">
+        s {{ s.section_no }}{% if s.section_heading %} — {{ s.section_heading }}{% endif %}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="act-header">
+  <h1>{{ act.name }}</h1>
+  {% if act.year %}<p class="act-meta">Year: {{ act.year }}</p>{% endif %}
+  {% if act.source_url %}
+  <p class="act-meta"><a href="{{ act.source_url }}" target="_blank" rel="noopener">
+    View on legislation.gov.au ↗
+  </a></p>
+  {% endif %}
+</div>
+
+<div class="section-index">
+  <h2>Table of Contents</h2>
+  <table class="toc-table">
+    <tbody>
+    {% for s in sections %}
+      <tr class="depth-{{ s.depth }}">
+        <td class="toc-num"><a href="/section/{{ s.id }}">s {{ s.section_no }}</a></td>
+        <td class="toc-heading">{{ s.section_heading or "" }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="act-actions">
+  <a href="/graph/{{ act.id }}" class="btn-secondary">View Section Graph</a>
+  <a href="/chat?act={{ act.id }}" class="btn-primary">Ask About This Act</a>
+</div>
+{% endblock %}
+
+{% block aside %}
+<aside class="section-aside">
+  <div class="relevant-source-block">
+    <h4>Relevant source files</h4>
+    {% if act.source_url %}
+    <div class="relevant-source-item"><span class="relevant-source-icon">↗</span><div><a href="{{ act.source_url }}" target="_blank" rel="noopener">Federal Register source</a><span>official Act text</span></div></div>
+    {% endif %}
+    <div class="relevant-source-item"><span class="relevant-source-icon">⌘</span><div><a href="/graph/{{ act.id }}">Section graph</a><span>cross-reference network</span></div></div>
+    <div class="relevant-source-item"><span class="relevant-source-icon">#</span><div><a href="/chat?act={{ act.id }}">Ask this Act</a><span>grounded Q&amp;A</span></div></div>
+  </div>
+</aside>
+{% endblock %}

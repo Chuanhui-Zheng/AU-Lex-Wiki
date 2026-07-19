@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}{{ sec.act_name }} s {{ sec.section_no }} — AU-Lex-Wiki{% endblock %}
+
+{% block aside %}
+<aside class="section-aside">
+  <div class="relevant-source-block">
+    <h4>Relevant source files</h4>
+    {% if sec.source_url %}
+    <div class="relevant-source-item">
+      <span class="relevant-source-icon">↗</span>
+      <div><a href="{{ sec.source_url }}" target="_blank" rel="noopener">Federal Register source</a><span>{{ sec.act_name }} · latest compilation</span></div>
+    </div>
+    {% endif %}
+    <div class="relevant-source-item">
+      <span class="relevant-source-icon">§</span>
+      <div><a href="/act/{{ sec.act_id }}">Act table of contents</a><span>s {{ sec.section_no }} in context</span></div>
+    </div>
+    <div class="relevant-source-item">
+      <span class="relevant-source-icon">⌘</span>
+      <div><a href="/graph/{{ sec.act_id }}">Section graph</a><span>cross-references and backlinks</span></div>
+    </div>
+  </div>
+  {% if refs %}
+  <div class="aside-block">
+    <h4>References</h4>
+    <ul>
+      {% for r in refs %}
+      <li>
+        {% if r.to_id %}
+        <a href="/section/{{ r.to_id }}">s {{ r.to_no }}</a>
+        {% else %}
+        <span>s {{ r.to_no }}</span>
+        {% endif %}
+        <span class="ref-type">{{ r.ref_type }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if backlinks %}
+  <div class="aside-block">
+    <h4>Referenced by</h4>
+    <ul>
+      {% for b in backlinks %}
+      <li>
+        <a href="/section/{{ b.from_id }}">{{ b.from_act }} s {{ b.from_no }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if entities %}
+  <div class="aside-block">
+    <h4>Entities</h4>
+    {% for e in entities %}
+    <div class="entity-tag entity-{{ e.entity_type }}">
+      {{ e.entity_type }}{% if e.term %}: <strong>{{ e.term }}</strong>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</aside>
+{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+  <a href="/">Home</a> /
+  <a href="/act/{{ sec.act_id }}">{{ sec.act_name }}</a> /
+  <span>s {{ sec.section_no }}</span>
+</nav>
+
+<article class="section-article">
+  <h1>s {{ sec.section_no }}
+    {% if sec.section_heading %}<span class="section-heading-sub">{{ sec.section_heading }}</span>{% endif %}
+  </h1>
+  <p class="section-meta">
+    {{ sec.act_name }} · Compilation: {{ sec.compilation_dt }}
+    {% if sec.source_url %}· <a href="{{ sec.source_url }}" target="_blank" rel="noopener">source ↗</a>{% endif %}
+  </p>
+
+  <div class="section-body">
+    {{ sec.body_html | safe }}
+  </div>
+</article>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Search — AU-Lex-Wiki{% endblock %}
+
+{% block content %}
+<h1>Search</h1>
+<form class="search-form" action="/search" method="get">
+  <input type="search" name="q" value="{{ query }}" placeholder="Search legislation…" autofocus>
+  <button type="submit">Search</button>
+</form>
+
+{% if query %}
+<p class="result-count">{{ results|length }} result{% if results|length != 1 %}s{% endif %} for <em>{{ query }}</em></p>
+{% endif %}
+
+<div class="search-results">
+  {% for r in results %}
+  <div class="search-result">
+    <a href="/section/{{ r.id }}" class="result-title">
+      {{ r.act_name }} — s {{ r.section_no }}
+      {% if r.section_heading %}<span class="result-heading">{{ r.section_heading }}</span>{% endif %}
+    </a>
+    <p class="result-preview">{{ r.body_preview }}…</p>
+  </div>
+  {% else %}
+    {% if query %}<p class="no-results">No results found.</p>{% endif %}
+  {% endfor %}
+</div>
+{% endblock %}

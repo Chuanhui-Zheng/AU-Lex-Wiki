@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% block title %}Ask — AU-Lex-Wiki{% endblock %}
+
+{% block content %}
+<div class="chat-layout">
+  <section class="chat-container">
+    <div class="eyebrow"><span class="status-dot"></span> Source-grounded assistant</div>
+    <h1>Ask the corpus</h1>
+    <p class="chat-desc">Ask about the legislation currently indexed. Every answer must point back to retrieved sections; if the evidence is not there, the assistant will say so.</p>
+
+    <div class="guardrail-banner">
+      <span class="guardrail-icon">✓</span>
+      <div><strong>Evidence first</strong><span>No legal advice, no invented provisions, no answer without supporting text.</span></div>
+    </div>
+
+    <div class="api-key-panel" id="apiKeyPanel">
+      <div class="api-key-copy"><strong>Connect your model</strong><span>Choose a provider and enter its key. Settings stay in this browser session and are sent only with your chat request.</span></div>
+      <div class="api-key-controls">
+        <label class="sr-only" for="apiKeyInput">Model provider API key</label>
+        <input id="apiKeyInput" type="password" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
+        <button type="button" id="saveApiKey">Save for this session</button>
+        <button type="button" id="clearApiKey" class="api-key-clear">Clear</button>
+      </div>
+      <div class="api-key-options">
+        <label>Provider<select id="providerSelect">
+          <option value="anthropic">Anthropic</option>
+          <option value="openai_compatible">OpenAI-compatible</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="gemini">Google Gemini</option>
+        </select></label>
+        <label>Model<input id="modelInput" type="text" value="claude-opus-4-5" autocomplete="off"></label>
+        <label id="baseUrlField">Base URL<input id="baseUrlInput" type="url" value="https://api.openai.com/v1" autocomplete="off"></label>
+      </div>
+      <div class="api-key-status" id="apiKeyStatus">No browser key set. You can also configure the provider key on the server.</div>
+    </div>
+
+    <div class="chat-window" id="chatWindow" aria-live="polite">
+      <div class="empty-chat" id="emptyChat">
+        <div class="empty-chat-mark">A</div>
+        <h2>What do you want to verify?</h2>
+        <p>Start with a specific duty, definition, exception or section reference.</p>
+        <div class="prompt-grid">
+          <button type="button" data-prompt="What must an APP entity do when it collects personal information?">Collection duties</button>
+          <button type="button" data-prompt="Where does this Act define personal information?">Find a definition</button>
+          <button type="button" data-prompt="What exceptions are stated in the indexed sections?">Check exceptions</button>
+        </div>
+      </div>
+    </div>
+
+    <form class="chat-form" id="chatForm">
+      <label class="sr-only" for="chatInput">Question</label>
+      <textarea id="chatInput" placeholder="Ask a precise question about the indexed legislation…" rows="3"></textarea>
+      <button type="submit" id="chatSubmit">Ask</button>
+    </form>
+    <p class="chat-footnote">Research aid only. Check the cited source and obtain professional advice for decisions.</p>
+  </section>
+
+  <aside class="chat-sidebar">
+    <div class="side-card">
+      <div class="eyebrow">Good questions</div>
+      <ul class="question-list">
+        <li>“What does s 18 require?”</li>
+        <li>“Which sections refer to s 30?”</li>
+        <li>“What is the defined meaning of …?”</li>
+      </ul>
+    </div>
+    <div class="side-card side-card-muted">
+      <div class="eyebrow">Answer policy</div>
+      <p>The assistant uses retrieved section text only. Weak evidence, missing citations or out-of-scope requests are refused.</p>
+    </div>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const form = document.getElementById('chatForm');
+const input = document.getElementById('chatInput');
+const window_ = document.getElementById('chatWindow');
+const submit = document.getElementById('chatSubmit');
+const emptyChat = document.getElementById('emptyChat');
+const actId = new URLSearchParams(window.location.search).get('act');
+const apiKeyInput = document.getElementById('apiKeyInput');
+const apiKeyStatus = document.getElementById('apiKeyStatus');
+const providerSelect = document.getElementById('providerSelect');
+const modelInput = document.getElementById('modelInput');
+const baseUrlInput = document.getElementById('baseUrlInput');
+const baseUrlField = document.getElementById('baseUrlField');
+const settingsStorage = 'aulex.llm_settings';
+const maskedKey = '••••••••••••';
+
+// Migrate the first Anthropic-only version of the key panel for the current tab.
+if (!sessionStorage.getItem(settingsStorage)) {
+  const legacyKey = sessionStorage.getItem('aulex.anthropic_api_key');
+  if (legacyKey) sessionStorage.setItem(settingsStorage, JSON.stringify({
+    api_key: legacyKey, provider: 'anthropic', model: 'claude-opus-4-5', base_url: ''
+  }));
+}
+
+function getSettings() {
+  try { return JSON.parse(sessionStorage.getItem(settingsStorage) || '{}'); }
+  catch (_) { return {}; }
+}
+
+function updateProviderFields() {
+  const provider = providerSelect.value;
+  const previousBaseUrl = baseUrlInput.value.trim();
+  const knownBaseUrls = ['https://api.openai.com/v1', 'https://openrouter.ai/api/v1', 'https://generativelanguage.googleapis.com/v1beta'];
+  baseUrlField.hidden = !['openai_compatible', 'openrouter'].includes(provider);
+  if (provider === 'anthropic' && (!modelInput.value || modelInput.value === 'gpt-4o-mini' || modelInput.value === 'openai/gpt-4o-mini')) modelInput.value = 'claude-opus-4-5';
+  if (provider === 'openai_compatible' && (!modelInput.value || modelInput.value === 'claude-opus-4-5' || modelInput.value === 'openai/gpt-4o-mini')) modelInput.value = 'gpt-4o-mini';
+  if (provider === 'openrouter' && (!modelInput.value || modelInput.value === 'claude-opus-4-5' || modelInput.value === 'gpt-4o-mini')) modelInput.value = 'openai/gpt-4o-mini';
+  if (provider === 'gemini' && (!modelInput.value || modelInput.value === 'gpt-4o-mini' || modelInput.value === 'openai/gpt-4o-mini')) modelInput.value = 'gemini-2.5-flash';
+  if (provider === 'openrouter' && (!previousBaseUrl || knownBaseUrls.includes(previousBaseUrl))) baseUrlInput.value = 'https://openrouter.ai/api/v1';
+  if (provider === 'openai_compatible' && (!previousBaseUrl || knownBaseUrls.includes(previousBaseUrl))) baseUrlInput.value = 'https://api.openai.com/v1';
+  apiKeyInput.placeholder = provider === 'gemini' ? 'AIza…' : provider === 'anthropic' ? 'sk-ant-…' : provider === 'openrouter' ? 'sk-or-v1-…' : 'sk-…';
+}
+
+function updateApiKeyStatus() {
+  const settings = getSettings();
+  const hasKey = Boolean(settings.api_key);
+  const providerLabel = providerSelect.options[providerSelect.selectedIndex]?.text || providerSelect.value;
+  apiKeyStatus.textContent = hasKey
+    ? `${providerLabel} key saved for this session. It is not stored in the database.`
+    : 'No browser key set. You can also configure the provider key on the server.';
+  apiKeyStatus.classList.toggle('is-active', hasKey);
+  if (hasKey) {
+    apiKeyInput.value = maskedKey;
+    apiKeyInput.readOnly = true;
+  }
+}
+
+document.getElementById('saveApiKey')?.addEventListener('click', () => {
+  const key = apiKeyInput.value.trim();
+  if (!key || key === maskedKey) return;
+  sessionStorage.setItem(settingsStorage, JSON.stringify({
+    api_key: key,
+    provider: providerSelect.value,
+    model: modelInput.value.trim(),
+    base_url: baseUrlInput.value.trim(),
+  }));
+  updateApiKeyStatus();
+});
+
+document.getElementById('clearApiKey')?.addEventListener('click', () => {
+  sessionStorage.removeItem(settingsStorage);
+  apiKeyInput.value = '';
+  apiKeyInput.readOnly = false;
+  updateApiKeyStatus();
+});
+apiKeyInput.addEventListener('focus', () => {
+  if (apiKeyInput.readOnly) {
+    apiKeyInput.value = '';
+    apiKeyInput.readOnly = false;
+  }
+});
+providerSelect.addEventListener('change', updateProviderFields);
+providerSelect.addEventListener('change', updateApiKeyStatus);
+const savedSettings = getSettings();
+if (savedSettings.provider) providerSelect.value = savedSettings.provider;
+if (savedSettings.model) modelInput.value = savedSettings.model;
+if (savedSettings.base_url) baseUrlInput.value = savedSettings.base_url;
+updateProviderFields();
+updateApiKeyStatus();
+
+function appendSource(source) {
+  const item = document.createElement('li');
+  item.id = `evidence-${source.marker || ''}`;
+  const link = document.createElement('a');
+  link.href = source.id ? `/section/${source.id}` : '#';
+  link.textContent = `${source.marker || 'Source'} · ${source.act_name} s ${source.section_no}`;
+  item.appendChild(link);
+  if (source.body_preview) {
+    const excerpt = document.createElement('p');
+    excerpt.className = 'evidence-excerpt';
+    excerpt.textContent = source.body_preview;
+    item.appendChild(excerpt);
+  }
+  if (source.source_url) {
+    const official = document.createElement('a');
+    official.href = source.source_url;
+    official.target = '_blank';
+    official.rel = 'noopener';
+    official.className = 'source-official';
+    official.textContent = 'official';
+    item.appendChild(official);
+  }
+  return item;
+}
+
+function appendAnswer(text, sources, parent) {
+  const sourceMap = new Map((sources || []).map(source => [source.marker, source]));
+  const parts = String(text || '').split(/(\[S\d+\])/g);
+  parts.forEach(part => {
+    const match = part.match(/^\[S(\d+)\]$/);
+    if (!match) {
+      parent.appendChild(document.createTextNode(part));
+      return;
+    }
+    const marker = `S${match[1]}`;
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'citation-chip';
+    chip.textContent = marker;
+    chip.title = 'Show supporting provision';
+    chip.addEventListener('click', () => {
+      const evidence = document.getElementById(`evidence-${marker}`);
+      if (evidence) evidence.scrollIntoView({behavior: 'smooth', block: 'center'});
+    });
+    if (!sourceMap.has(marker)) chip.disabled = true;
+    parent.appendChild(chip);
+  });
+}
+
+function appendMessage(role, content, sources) {
+  if (emptyChat) emptyChat.remove();
+  const div = document.createElement('div');
+  div.className = `chat-msg chat-msg-${role}`;
+
+  const label = document.createElement('span');
+  label.className = 'message-label';
+  label.textContent = role === 'user' ? 'You' : 'AU-Lex assistant';
+  div.appendChild(label);
+
+  const text = document.createElement('p');
+  if (role === 'assistant') appendAnswer(content, sources, text);
+  else text.textContent = content;
+  div.appendChild(text);
+
+  if (sources && sources.length) {
+    const src = document.createElement('div');
+    src.className = 'chat-sources';
+    const heading = document.createElement('strong');
+    heading.textContent = 'Evidence';
+    src.appendChild(heading);
+    const list = document.createElement('ul');
+    sources.forEach(source => list.appendChild(appendSource(source)));
+    src.appendChild(list);
+    div.appendChild(src);
+  }
+
+  window_.appendChild(div);
+  window_.scrollTop = window_.scrollHeight;
+}
+
+async function submitQuestion(query) {
+  if (!query) return;
+
+  appendMessage('user', query, null);
+  input.value = '';
+  submit.disabled = true;
+  submit.textContent = 'Thinking…';
+
+  try {
+    const settings = getSettings();
+    const payload = {
+      query,
+      api_key: settings.api_key || undefined,
+      // The key is session state, but provider/model/base URL are live form state.
+      // This prevents an old saved provider from overriding a newly selected one.
+      provider: providerSelect.value,
+      model: modelInput.value.trim(),
+      base_url: baseUrlInput.value.trim(),
+    };
+    if (actId) payload.act_id = actId;
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    appendMessage('assistant', data.answer || data.error || 'The assistant could not answer this question.', data.sources || []);
+  } catch (err) {
+    appendMessage('assistant', 'Error: ' + err.message, null);
+  } finally {
+    submit.disabled = false;
+    submit.textContent = 'Ask';
+  }
+}
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  submitQuestion(input.value.trim());
+});
+
+document.querySelectorAll('[data-prompt]').forEach(button => {
+  button.addEventListener('click', () => {
+    input.value = button.dataset.prompt;
+    input.focus();
+  });
+});
+
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    form.requestSubmit();
+  }
+});
+
+const initialQuery = new URLSearchParams(window.location.search).get('query');
+if (initialQuery) {
+  input.value = initialQuery;
+  submitQuestion(initialQuery);
+}
+</script>
+{% endblock %}

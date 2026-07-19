@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AU-Lex-Wiki{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="{% if request.url.path == '/chat' %}chat-page{% endif %}">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo" aria-label="AU-Lex-Wiki home">
+        <span class="logo-mark">A</span>
+        <span>AU-Lex<span class="logo-muted">/Wiki</span></span>
+      </a>
+      <form class="header-search" action="/search" method="get">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input type="search" name="q" placeholder="Search Acts, sections and terms…"
+               value="{{ request.query_params.get('q', '') }}">
+        <kbd>/</kbd>
+      </form>
+      <nav class="header-nav">
+        <a href="/">Library</a>
+        <a href="/chat" class="nav-ask" id="askToggle">Ask the corpus</a>
+        <a href="https://github.com/Chuanhui-Zheng/AU-Lex-Rag" target="_blank" rel="noopener" class="nav-icon-link">GitHub</a>
+        <button type="button" class="nav-icon-link nav-button" id="shareButton">Share</button>
+        <button type="button" class="theme-toggle nav-button" id="themeToggle" aria-label="Toggle color theme">◐</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="layout">
+    {% block sidebar %}{% endblock %}
+    <main id="main" class="main-content">
+      {% block content %}{% endblock %}
+    </main>
+    {% block aside %}{% endblock %}
+  </div>
+
+  <section class="ask-dock" id="askDock" aria-label="Ask AU-Lex">
+    <button type="button" class="ask-orb" id="askOrb" aria-label="Open Ask AU-Lex" aria-expanded="false">
+      <span class="ask-orb-mark">A</span>
+      <span class="ask-orb-pulse" aria-hidden="true"></span>
+    </button>
+    <div class="ask-dock-panel" id="askDockPanel" aria-hidden="true">
+      <div class="ask-dock-header">
+        <div><span class="eyebrow"><span class="status-dot"></span> Ask AU-Lex</span><strong id="askModeLabel">Offline evidence mode</strong></div>
+        <div class="ask-dock-actions">
+          <div class="mode-toggle" role="group" aria-label="Ask mode">
+            <button type="button" class="mode-option is-active" data-mode="offline">Offline</button>
+            <button type="button" class="mode-option" data-mode="online">Online</button>
+          </div>
+          <button type="button" class="dock-settings" id="askSettingsToggle">Settings</button>
+          <button type="button" class="dock-close" id="askDockClose" aria-label="Close Ask">×</button>
+        </div>
+      </div>
+      <div class="ask-dock-result" id="askDockResult" aria-live="polite">
+        <div class="ask-empty-state">Ask about a provision, definition or cross-reference. Your answer and evidence will appear here.</div>
+      </div>
+      <form class="ask-dock-form" id="askDockForm">
+        <label class="sr-only" for="askDockInput">Ask a question</label>
+        <textarea id="askDockInput" rows="1" placeholder="Ask about a provision, definition or cross-reference…"></textarea>
+        <button type="submit" id="askDockSubmit">Ask</button>
+      </form>
+    </div>
+  </section>
+  <div class="ask-settings-modal" id="askSettingsModal" hidden>
+    <div class="ask-settings-backdrop" data-settings-close></div>
+    <section class="ask-settings-card" role="dialog" aria-modal="true" aria-labelledby="askSettingsTitle">
+      <div class="ask-settings-heading"><div><span class="eyebrow">Model connection</span><h2 id="askSettingsTitle">Ask settings</h2></div><button type="button" class="dock-close" data-settings-close aria-label="Close settings">×</button></div>
+      <p class="ask-settings-note">Stored only in this browser session. It is not written to the database.</p>
+      <label>Provider<select id="askProviderInput"><option value="anthropic">Anthropic</option><option value="openai_compatible">OpenAI-compatible</option><option value="openrouter">OpenRouter</option><option value="gemini">Google Gemini</option></select></label>
+      <label>API key<input id="askApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="Provider API key"></label>
+      <label>Model<input id="askModelInput" type="text" autocomplete="off"></label>
+      <label id="askBaseUrlField">Base URL<input id="askBaseUrlInput" type="url" autocomplete="off"></label>
+      <div class="ask-settings-actions"><button type="button" class="api-key-clear" id="askClearSettings">Clear</button><button type="button" id="askSaveSettings">Save for this session</button></div>
+      <p class="api-key-status" id="askSettingsStatus">No browser key set. You can also configure a server-side key.</p>
+    </section>
+  </div>
+  <div class="site-toast" id="siteToast" role="status" aria-live="polite"></div>
+
+  <script src="/static/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
