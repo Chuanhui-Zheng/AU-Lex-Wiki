@@ -7,7 +7,7 @@ load_dotenv()
 @dataclass
 class Config:
     db_url: str = field(default_factory=lambda: os.getenv(
-        "DATABASE_URL", "postgresql://localhost/au_lex_wiki"
+        "DATABASE_URL", "postgresql://localhost/au_worklaw_atlas"
     ))
     embedding_model: str = "BAAI/bge-m3"
     reranker_model: str = "BAAI/bge-reranker-v2-m3"
@@ -21,6 +21,7 @@ class Config:
         "ENABLE_LOCAL_EMBEDDINGS", "false"
     ).lower() in {"1", "true", "yes"})
     legislation_api_base: str = "https://api.prod.legislation.gov.au/v1"
+    worklaw_source_manifest: str = "config/worklaw_sources.json"
     wiki_dir: str = "wiki"
     data_dir: str = "data"
     # retrieval
