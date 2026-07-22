@@ -5,9 +5,12 @@
     "citation": "[2025] FWCFB 3500",
     "decision_date": "2025-06-03",
     "category": "annual_wage_review",
-    "url": "https://www.fwc.gov.au/documents/resources/2025fwcfb3500.pdf",
+    "url": "https://www.fwc.gov.au/documents/decisionssigned/pdf/2025fwcfb3500.pdf",
     "relations": [
-      {"type": "cites", "target_title": "Fair Work Act 2009", "sections": ["285"]}
+      {"type": "cites", "target_title": "Fair Work Act 2009", "sections": ["285"]},
+      {"type": "interprets", "target_award": "Aged Care Award", "target_clause": "minimum wages"},
+      {"type": "interprets", "target_award": "Nurses Award", "target_clause": "minimum wages"},
+      {"type": "interprets", "target_award": "Social, Community, Home Care and Disability Services Industry Award", "target_clause": "minimum wages"}
     ]
   },
   {
@@ -16,7 +19,7 @@
     "citation": "[2024] FWCFB 3500",
     "decision_date": "2024-06-03",
     "category": "annual_wage_review",
-    "url": "https://web-prd.fwc.gov.au/documents/decisionssigned/pdf/2024fwcfb3500.pdf",
+    "url": "https://www.fwc.gov.au/documents/decisionssigned/pdf/2024fwcfb3500.pdf",
     "relations": [
       {"type": "cites", "target_title": "Fair Work Act 2009", "sections": ["285"]}
     ]
@@ -44,15 +47,15 @@
     ]
   },
   {
-    "id": "2014-fwcfb-3202",
-    "case_name": "Canavan Building Pty Ltd Enterprise Agreement 2013",
-    "citation": "[2014] FWCFB 3202",
-    "decision_date": "2014-05-29",
+    "id": "2019-fwcfb-1717",
+    "case_name": "Enterprise agreement approval and publication",
+    "citation": "[2019] FWCFB 1717",
+    "decision_date": "2019-04-09",
     "category": "enterprise_agreement_approval",
-    "url": "https://www.fwc.gov.au/documents/decisionssigned/html/2014fwcfb3202.htm",
+    "url": "https://www.fwc.gov.au/documents/decisionssigned/html/pdf/2019fwcfb1717.pdf",
     "relations": [
-      {"type": "cites", "target_title": "Fair Work Act 2009", "sections": ["55", "185", "186"]},
-      {"type": "concerns", "target_enterprise_agreement": "Canavan Building Pty Ltd Enterprise Agreement 2013"}
+      {"type": "cites", "target_title": "Fair Work Act 2009", "sections": ["185", "601"]},
+      {"type": "concerns", "target_enterprise_agreement": "enterprise agreement publication"}
     ]
   },
   {
