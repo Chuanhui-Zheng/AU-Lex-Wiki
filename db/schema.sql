@@ -1,4 +1,4 @@
--- AU-Lex-Wiki: PostgreSQL schema
+-- AU-WorkLaw-Atlas: PostgreSQL schema
 -- Requires: pgvector extension
 
 CREATE EXTENSION IF NOT EXISTS vector;
