@@ -284,6 +284,89 @@ async def evaluation():
     return JSONResponse({"available": True, "markdown": report_path.read_text()})
 
 
+# ── Fair Work Commission decisions ──────────────────────────────────────────
+
+@app.get("/api/decisions")
+async def decisions(category: str | None = None, limit: int = Query(default=50, ge=1, le=200)):
+    """Return curated FWC decisions and their linked graph edges."""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        conditions = []
+        params = []
+        if category:
+            conditions.append("d.category=%s")
+            params.append(category)
+        where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        cur.execute(f"""
+            SELECT d.decision_id, d.case_name, d.citation, d.decision_date::text,
+                   d.category, d.source_url, a.id, a.name,
+                   COUNT(dr.id)
+            FROM decisions d
+            JOIN acts a ON a.id=d.act_id
+            LEFT JOIN decision_refs dr ON dr.decision_id=d.id
+            {where}
+            GROUP BY d.id, a.id
+            ORDER BY d.decision_date DESC NULLS LAST, d.decision_id
+            LIMIT %s
+        """, (*params, limit))
+        records = []
+        for row in cur.fetchall():
+            records.append(dict(zip(
+                ["decision_id", "case_name", "citation", "decision_date", "category",
+                 "source_url", "act_id", "indexed_name", "edge_count"], row
+            )))
+        return JSONResponse({"decisions": records, "count": len(records)})
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.get("/api/decision/{decision_id}")
+async def decision_data(decision_id: str):
+    """Return one FWC decision with explicit law/Award/agreement graph edges."""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT d.id, d.decision_id, d.case_name, d.citation,
+                   d.decision_date::text, d.category, d.authority_level,
+                   d.source_url, a.id, a.name
+            FROM decisions d
+            JOIN acts a ON a.id=d.act_id
+            WHERE d.decision_id=%s
+        """, (decision_id,))
+        row = cur.fetchone()
+        if not row:
+            return JSONResponse({"error": "Decision not found"}, status_code=404)
+        decision = dict(zip(
+            ["id", "decision_id", "case_name", "citation", "decision_date", "category",
+             "authority_level", "source_url", "act_id", "indexed_name"], row
+        ))
+        cur.execute("""
+            SELECT dr.relation_type, dr.target_section_no, dr.target_clause,
+                   dr.target_enterprise_agreement, dr.evidence,
+                   ta.id, ta.name, twa.id, twa.name
+            FROM decision_refs dr
+            LEFT JOIN acts ta ON ta.id=dr.target_act_id
+            LEFT JOIN acts twa ON twa.id=dr.target_award_id
+            WHERE dr.decision_id=%s
+            ORDER BY dr.relation_type, dr.id
+        """, (row[0],))
+        refs = []
+        for ref in cur.fetchall():
+            refs.append(dict(zip(
+                ["relation_type", "target_section_no", "target_clause",
+                 "target_enterprise_agreement", "evidence", "target_act_id",
+                 "target_act_name", "target_award_id", "target_award_name"], ref
+            )))
+        decision["refs"] = refs
+        return JSONResponse(decision)
+    finally:
+        cur.close()
+        conn.close()
+
+
 # ── Graph data (D3.js) ────────────────────────────────────────────────────────
 
 @app.get("/graph/{act_id}", response_class=HTMLResponse)
@@ -303,6 +386,16 @@ async def graph_page(request: Request, act_id: int):
 @app.get("/chat", response_class=HTMLResponse)
 async def chat_page(request: Request):
     return templates.TemplateResponse(request, "chat.html", {})
+
+
+@app.get("/decisions", response_class=HTMLResponse)
+async def decisions_page(request: Request):
+    return templates.TemplateResponse(request, "decisions.html", {})
+
+
+@app.get("/decision/{decision_id}", response_class=HTMLResponse)
+async def decision_page(request: Request, decision_id: str):
+    return templates.TemplateResponse(request, "decision.html", {"decision_id": decision_id})
 
 
 @app.get("/api/graph/{act_id}")
