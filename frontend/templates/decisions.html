@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}FWC Decisions — AU-WorkLaw-Atlas{% endblock %}
+
+{% block content %}
+<div class="graph-card decision-page">
+  <div class="graph-toolbar">
+    <div>
+      <div class="eyebrow">V4 decision layer</div>
+      <h1>Fair Work Commission decisions</h1>
+      <p class="graph-desc">A curated, source-linked set of decisions. Each card exposes the relations used by Graph-RAG: cites, interprets and concerns.</p>
+    </div>
+    <a class="btn-secondary" href="/">Back to Atlas</a>
+  </div>
+  <div id="decisionList" class="decision-list" aria-live="polite">Loading decisions…</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+fetch('/api/decisions')
+  .then(response => response.json())
+  .then(({decisions}) => {
+    const list = document.getElementById('decisionList');
+    list.replaceChildren();
+    decisions.forEach(decision => {
+      const card = document.createElement('article');
+      card.className = 'decision-card';
+      const title = document.createElement('h2');
+      const link = document.createElement('a');
+      link.href = `/decision/${encodeURIComponent(decision.decision_id)}`;
+      link.textContent = `${decision.case_name} · ${decision.citation}`;
+      title.appendChild(link);
+      const meta = document.createElement('p');
+      meta.className = 'decision-meta';
+      meta.textContent = `${decision.decision_date || 'Undated'} · ${decision.category.replaceAll('_', ' ')} · ${decision.edge_count} graph edges`;
+      card.append(title, meta);
+      list.appendChild(card);
+    });
+  })
+  .catch(() => { document.getElementById('decisionList').textContent = 'Could not load the decision index.'; });
+</script>
+{% endblock %}

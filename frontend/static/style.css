@@ -529,6 +529,19 @@ body { background: var(--bg); color: var(--text); }
 .graph-node circle { stroke: var(--surface); stroke-width: 2; }
 .graph-node text { fill: var(--text); font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
 .graph-link { stroke: var(--accent); stroke-opacity: .28; }
+.decision-page h1 { margin-bottom: .35rem; }
+.decision-list { display: grid; gap: .65rem; }
+.decision-card, .relation-card { padding: .85rem 1rem; border: 1px solid var(--border); border-radius: 9px; background: color-mix(in srgb, var(--surface-soft) 62%, transparent); }
+.decision-card h2 { margin: 0; font-size: .95rem; }
+.decision-card h2 a { color: var(--accent); }
+.decision-meta { margin: .35rem 0 0; color: var(--text-muted); font-size: .75rem; text-transform: capitalize; }
+.back-link { display: inline-block; margin-bottom: 1rem; color: var(--accent); font-size: .78rem; font-weight: 700; }
+.decision-graph { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.decision-relations { display: grid; gap: .6rem; margin-top: .65rem; }
+.relation-card { display: grid; grid-template-columns: 105px minmax(0, 1fr); gap: .5rem; align-items: baseline; }
+.relation-card strong { color: var(--accent); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; }
+.relation-card span { color: var(--text); font-size: .85rem; }
+.relation-card small { grid-column: 2; color: var(--text-muted); font-size: .72rem; }
 
 @media (max-width: 700px) {
   .header-nav { gap: .45rem; }
