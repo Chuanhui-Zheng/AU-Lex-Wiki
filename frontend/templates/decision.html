@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Decision — AU-WorkLaw-Atlas{% endblock %}
+
+{% block content %}
+<div class="graph-card decision-page" id="decisionPage">
+  <a class="back-link" href="/decisions">← All FWC decisions</a>
+  <div id="decisionHeader">Loading decision…</div>
+  <section class="decision-graph" aria-labelledby="relationsHeading">
+    <div class="eyebrow" id="relationsHeading">Evidence graph</div>
+    <div id="decisionRelations" class="decision-relations"></div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const decisionId = {{ decision_id | tojson }};
+fetch(`/api/decision/${encodeURIComponent(decisionId)}`)
+  .then(response => response.json())
+  .then(decision => {
+    if (decision.error) throw new Error(decision.error);
+    const header = document.getElementById('decisionHeader');
+    const heading = document.createElement('h1');
+    heading.textContent = `${decision.case_name} · ${decision.citation}`;
+    const meta = document.createElement('p');
+    meta.className = 'decision-meta';
+    meta.textContent = `${decision.decision_date || 'Undated'} · ${decision.category.replaceAll('_', ' ')} · ${decision.authority_level}`;
+    const source = document.createElement('a');
+    source.className = 'source-official';
+    source.href = decision.source_url;
+    source.target = '_blank';
+    source.rel = 'noopener';
+    source.textContent = 'Open official decision';
+    header.replaceChildren(heading, meta, source);
+    const relations = document.getElementById('decisionRelations');
+    if (!decision.refs.length) {
+      relations.textContent = 'No graph edges are registered for this decision.';
+      return;
+    }
+    decision.refs.forEach(ref => {
+      const item = document.createElement('article');
+      item.className = 'relation-card';
+      const label = document.createElement('strong');
+      label.textContent = ref.relation_type;
+      const target = document.createElement('span');
+      target.textContent = ref.target_award_name || ref.target_act_name || ref.target_enterprise_agreement || ref.target_section_no || 'unresolved target';
+      item.append(label, target);
+      if (ref.target_clause || ref.target_section_no) {
+        const detail = document.createElement('small');
+        detail.textContent = [ref.target_section_no && `section ${ref.target_section_no}`, ref.target_clause && `clause ${ref.target_clause}`].filter(Boolean).join(' · ');
+        item.appendChild(detail);
+      }
+      relations.appendChild(item);
+    });
+  })
+  .catch(error => { document.getElementById('decisionHeader').textContent = `Could not load decision: ${error.message}`; });
+</script>
+{% endblock %}
