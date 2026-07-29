@@ -1,0 +1,16 @@
+{
+  "description": "Official source registry for AU-WorkLaw-Atlas V1-V3.",
+  "federal_register": {
+    "title_ids": ["C2009A00028"],
+    "title_names": ["Fair Work Act 2009", "Fair Work Regulations 2009"]
+  },
+  "fair_work_commission": {
+    "awards_index": "https://www.fwc.gov.au/work-conditions/awards/find-award",
+    "agreements_search": "https://www.fwc.gov.au/document-search?search-ui=agreements",
+    "decisions_search": "https://www.fwc.gov.au/hearings-decisions/find-decisions-and-orders"
+  },
+  "fair_work_ombudsman": {
+    "guides_index": "https://www.fairwork.gov.au/tools-and-resources/workplace-guides",
+    "pay_guides_index": "https://www.fairwork.gov.au/pay-and-wages/minimum-wages/pay-guides"
+  }
+}
