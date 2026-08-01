@@ -1,5 +1,5 @@
 """
-Fetch all in-force Commonwealth Acts from the Federal Register of Legislation.
+Fetch selected in-force legal documents from the Federal Register of Legislation.
 Saves HTML content directly from /{titleId}/{date}/{date}/text/original/epub/OEBPS/
 to data/raw/{titleId}.html. No EPUB download required.
 """
@@ -150,7 +150,7 @@ def fetch_one_title(t: dict) -> tuple[dict | None, dict | None]:
 
 
 def main(max_principal: int = 300, workers: int = 6):
-    """Fetch up to max_principal principal Acts (default 300)."""
+    """Fetch up to max_principal principal legal documents (default 300)."""
     print("Fetching Act titles...")
     acts = get_all_titles("act", max_principal=max_principal)
     print(f"Found {len(acts)} Acts")
