@@ -141,13 +141,19 @@ def lexical_search(query: str, conn, k: int = None, act_id: int | None = None) -
     search_query = " | ".join(search_terms) or query
     section_match = re.search(r"\b(?:s|sec|section|clause|regulation)\s+(\d+[A-Za-z]?(?:\.\d+)*)", query.lower())
     exact_section = section_match.group(1) if section_match else "__no_exact_section__"
-    cur.execute("SELECT id, name FROM acts")
+    cur.execute("SELECT id, name, document_type FROM acts")
     title_matches = []
-    for candidate_id, name in cur.fetchall():
+    for candidate_id, name, document_type in cur.fetchall():
         title_terms = [t for t in re.findall(r"[a-z0-9]+", name.lower())
                        if t not in stop_terms and not t.isdigit()
                        and not re.fullmatch(r"ma\d+", t) and len(t) > 2]
-        if len(title_terms) >= 2 and all(term in query_terms for term in title_terms):
+        overlap = set(title_terms).intersection(query_terms)
+        # Decision titles include the full case caption and citation. A user
+        # normally names only the leading parties, so require a strong partial
+        # match for decisions instead of requiring every caption token.
+        decision_match = document_type == "decision" and len(overlap) >= 2
+        full_title_match = len(title_terms) >= 2 and all(term in query_terms for term in title_terms)
+        if full_title_match or decision_match:
             title_matches.append(candidate_id)
 
     if act_id:
