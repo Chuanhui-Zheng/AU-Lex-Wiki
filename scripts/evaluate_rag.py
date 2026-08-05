@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import statistics
 import time
+import argparse
 from pathlib import Path
 
 import psycopg2
@@ -121,7 +122,7 @@ Profile: PostgreSQL full-text, title-aware retrieval, no BGE-M3 vectors.
 | Evidence-term coverage proxy | {pct(baseline['mean_evidence_coverage'])} | {pct(optimized['mean_evidence_coverage'])} | {coverage_delta * 100:+.1f} pp |
 
 The comparison uses `{payload['questions']['in_scope']}` in-scope questions from
-`config/eval_questions_v2.json`; each has one gold document title and optional
+`{payload['questions']['source']}`; each has one gold document title and optional
 section/term checks. “Recall@5” is therefore source hit rate for this single-gold
 benchmark, not a claim about all Australian workplace-law questions.
 
@@ -146,13 +147,18 @@ benchmark, not a claim about all Australian workplace-law questions.
 ## Reproduce
 
 ```bash
-python -m scripts.evaluate_rag
+python -m scripts.evaluate_rag --questions {payload['questions']['source']} --report docs/RAG_EVALUATION_V4.md --json-report output/rag_evaluation_v4.json
 ```
 """
 
 
 def main() -> None:
-    questions = json.loads(QUESTIONS.read_text())
+    parser = argparse.ArgumentParser(description="Evaluate retrieval and refusal safeguards")
+    parser.add_argument("--questions", type=Path, default=QUESTIONS)
+    parser.add_argument("--report", type=Path, default=REPORT)
+    parser.add_argument("--json-report", type=Path, default=JSON_REPORT)
+    args = parser.parse_args()
+    questions = json.loads(args.questions.read_text())
     conn = psycopg2.connect(config.db_url)
     results = []
     optimized_latencies = []
@@ -183,7 +189,7 @@ def main() -> None:
     payload = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "profile": "postgres_fts_title_aware_text_only",
-        "questions": {"total": len(questions), "in_scope": sum(q["in_scope"] for q in questions)},
+        "questions": {"total": len(questions), "in_scope": sum(q["in_scope"] for q in questions), "source": str(args.questions)},
         "retrieval": {
             "baseline": retrieval_metrics(results, "baseline"),
             "optimized": retrieval_metrics(results, "optimized"),
@@ -195,9 +201,10 @@ def main() -> None:
         },
         "cases": results,
     }
-    JSON_REPORT.parent.mkdir(parents=True, exist_ok=True)
-    JSON_REPORT.write_text(json.dumps(payload, indent=2))
-    REPORT.write_text(render_report(payload))
+    args.json_report.parent.mkdir(parents=True, exist_ok=True)
+    args.json_report.write_text(json.dumps(payload, indent=2))
+    args.report.parent.mkdir(parents=True, exist_ok=True)
+    args.report.write_text(render_report(payload))
     print(render_report(payload))
 
 

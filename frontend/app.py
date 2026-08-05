@@ -276,12 +276,20 @@ async def chat(request: Request):
 
 
 @app.get("/api/evaluation")
-async def evaluation():
-    """Expose the latest generated benchmark to the chat/UI layer."""
-    report_path = Path("docs/RAG_EVALUATION.md")
+async def evaluation(version: str = Query(default="latest")):
+    """Expose a generated benchmark to the chat/UI layer."""
+    report_paths = {
+        "v4": Path("docs/RAG_EVALUATION_V4.md"),
+        "v3": Path("docs/RAG_EVALUATION.md"),
+    }
+    report_path = report_paths.get(version) if version != "latest" else next(
+        (path for path in report_paths.values() if path.is_file()), Path("docs/RAG_EVALUATION.md")
+    )
+    if version not in {"latest", *report_paths}:
+        return JSONResponse({"available": False, "message": "Unknown evaluation version."}, status_code=400)
     if not report_path.is_file():
         return JSONResponse({"available": False, "message": "Run python -m scripts.evaluate_rag first."})
-    return JSONResponse({"available": True, "markdown": report_path.read_text()})
+    return JSONResponse({"available": True, "version": version if version != "latest" else "v4", "markdown": report_path.read_text()})
 
 
 # ── Fair Work Commission decisions ──────────────────────────────────────────

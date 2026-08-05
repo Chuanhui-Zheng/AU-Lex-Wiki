@@ -1,0 +1,66 @@
+[
+  {
+    "id": "award-minimum-rate",
+    "question": "What is the minimum hourly rate in the Restaurant Industry Award?",
+    "target_title": "Restaurant Industry Award",
+    "expected_terms": ["rate", "pay"],
+    "in_scope": true
+  },
+  {
+    "id": "award-overtime",
+    "question": "What overtime conditions are indexed for the Hospitality Industry Award?",
+    "target_title": "Hospitality Industry (General) Award",
+    "expected_terms": ["overtime", "ordinary"],
+    "in_scope": true
+  },
+  {
+    "id": "act-section-18",
+    "question": "What does section 18 of the Fair Work Act 2009 require?",
+    "target_title": "Fair Work Act 2009",
+    "expected_terms": ["full rate", "pay"],
+    "expected_section": "18",
+    "in_scope": true
+  },
+  {
+    "id": "casual-guide",
+    "question": "What does the FWO guide say about casual employment?",
+    "target_title": "Your guide to casual employment",
+    "expected_terms": ["casual", "employment"],
+    "in_scope": true
+  },
+  {
+    "id": "unpaid-work-factsheet",
+    "question": "What does the FWO Unpaid work fact sheet explain?",
+    "target_title": "Unpaid work",
+    "expected_terms": ["unpaid", "work"],
+    "in_scope": true
+  },
+  {
+    "id": "gold-tiger-decision",
+    "question": "What did the Fair Work Commission decide in Gold Tiger Logistics about unfair dismissal?",
+    "target_title": "Gold Tiger Logistics Qld Pty Ltd v Audrey Campbell",
+    "expected_terms": ["unfair dismissal", "appeal"],
+    "in_scope": true
+  },
+  {
+    "id": "annual-wage-review-2025",
+    "question": "What did the Annual Wage Review 2025 decision consider?",
+    "target_title": "Annual Wage Review 2025",
+    "expected_terms": ["modern award", "minimum wage"],
+    "in_scope": true
+  },
+  {
+    "id": "out-of-scope-moon",
+    "question": "What is the moon made of?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "out-of-scope-weather",
+    "question": "What will the weather be tomorrow?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  }
+]
