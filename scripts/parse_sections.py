@@ -1,13 +1,12 @@
 """
-Parse legislation HTML files (from legislation.gov.au EPUB HTML format)
-into section chunks for ingestion into PostgreSQL.
+Parse Federal Register XHTML documents into provision chunks for ingestion.
 
 The HTML uses CSS classes to indicate structure:
   ActHead2  → Part heading
   ActHead3  → Division heading
   ActHead4  → Subdivision heading
-  ActHead5  → Section heading (number + title)
-  subsection/subsection2 → Section/subsection body text
+  ActHead5  → Provision heading (number + title)
+  subsection/subsection2 → Provision/subprovision body text
   paragraph → Paragraph text
   Definition → Definition text
   Penalty    → Penalty provision
@@ -173,11 +172,11 @@ def process_file(html_path: Path, meta: dict) -> Path | None:
 def main():
     index_path = DATA / "index.json"
     if not index_path.exists():
-        print("No index.json found. Run fetch_legislation.py first.")
+        print("No index.json found. Run fetch_worklaw_sources.py first.")
         return
 
     index = json.loads(index_path.read_text())
-    print(f"Parsing {len(index)} acts...")
+    print(f"Parsing {len(index)} official workplace-law documents...")
 
     total_sections = 0
     for meta in tqdm(index, desc="Parsing HTML"):
@@ -189,7 +188,7 @@ def main():
             count = len(out.read_text().splitlines())
             total_sections += count
 
-    print(f"\nDone. {total_sections:,} sections across {len(index)} acts → {CHUNKS}")
+    print(f"\nDone. {total_sections:,} provisions across {len(index)} documents → {CHUNKS}")
 
 
 if __name__ == "__main__":
