@@ -46,9 +46,18 @@ the underlying source URL and authority label.
 
 ## V4 — Decisions
 
-- curated Fair Work Commission decisions before bulk ingestion;
-- decision metadata, case type, date and cited provisions;
-- links from a decision to the Award, Agreement or Act provisions it interprets.
+- six curated Fair Work Commission decisions before bulk ingestion;
+- decision metadata, case type, date, official PDF and cited provisions;
+- paragraph-level decision evidence in the same grounded Ask pipeline;
+- `Decision -> cites -> Act section`, `Decision -> interprets -> Award` and
+  `Decision -> concerns -> Enterprise Agreement` graph edges;
+- `/decisions`, `/decision/{decision_id}`, `/api/decisions` and
+  `/api/decision/{decision_id}` for source-linked inspection;
+- V4 retrieval benchmark including decision questions and refusal checks.
+
+V4 is intentionally a curated interpretation layer. It should grow through a
+reviewed manifest rather than silently treating every search result as binding
+precedent.
 
 ## V5 — Agreements
 
