@@ -1,17 +1,13 @@
-"""
-One-shot pipeline runner: parse → ingest (text only, no embeddings) → extract entities.
-Run this after fetch_legislation.py completes.
-Embedding is a separate step (requires BGE-M3 model download).
-"""
+"""Run the WorkLaw text pipeline after the official source fetch step."""
 import subprocess
 import sys
 
 PYTHON = sys.executable
 STEPS = [
-    ("Parsing XML → section chunks", ["python", "-m", "scripts.parse_sections"]),
+    ("Parsing source documents → provision chunks", ["python", "-m", "scripts.parse_sections"]),
     ("Ingesting to PostgreSQL (text + metadata)",
      ["python", "-m", "scripts.embed_and_ingest", "--skip-embedding"]),
-    ("Extracting entities and cross-references",
+    ("Extracting legal entities and cross-references",
      ["python", "-m", "scripts.extract_entities"]),
     ("Generating Markdown wiki pages",
      ["python", "-m", "scripts.generate_markdown"]),
