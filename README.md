@@ -79,6 +79,13 @@ python -m scripts.check_guidance
 python -m scripts.parse_guidance
 python -m scripts.embed_and_ingest --skip-embedding
 
+# Add the curated Fair Work Commission decision layer.
+python -m scripts.fetch_decisions
+python -m scripts.parse_decisions
+python -m scripts.embed_and_ingest --skip-embedding
+python -m scripts.link_decisions
+python -m scripts.check_decisions
+
 # Optional upgrade: set ENABLE_LOCAL_EMBEDDINGS=true first, then run this to
 # add BGE-M3 vectors. It is not required for the default deployment.
 # python -m scripts.embed_and_ingest
@@ -104,12 +111,23 @@ report:
 
 ```bash
 python -m scripts.evaluate_rag
+
+# Reproduce the V4 benchmark, including FWC decision questions.
+python -m scripts.evaluate_rag \
+  --questions config/eval_questions_v4.json \
+  --report docs/RAG_EVALUATION_V4.md \
+  --json-report output/rag_evaluation_v4.json
 ```
 
 The report compares simple PostgreSQL FTS with the optimized title-aware
 retriever using Recall@5/source hit rate, MRR@5, evidence-term coverage,
 refusal accuracy and local latency. It does not label these proxies as RAGAS
 Faithfulness or Answer Correctness.
+
+The V4 decision layer is browsable at `/decisions`; each decision page shows
+the official source link and its explicit Act, Award and agreement graph edges.
+The same decision chunks are eligible for offline evidence answers and online
+LLM generation, subject to the existing citation and refusal gate.
 
 ## Run
 
