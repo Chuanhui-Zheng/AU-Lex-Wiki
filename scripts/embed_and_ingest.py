@@ -110,10 +110,18 @@ def ingest(conn, skip_embedding: bool = False):
                 # Keep re-runs idempotent without requiring a destructive
                 # cleanup or a unique index on the existing database.
                 cur.execute(
-                    "SELECT 1 FROM sections WHERE compilation_id=%s AND section_no=%s AND body=%s LIMIT 1",
+                    "SELECT id, embedding IS NOT NULL FROM sections "
+                    "WHERE compilation_id=%s AND section_no=%s AND body=%s LIMIT 1",
                     (c_id, s["sectionNo"], s["body"]),
                 )
-                if cur.fetchone():
+                existing = cur.fetchone()
+                if existing and (skip_embedding or existing[1]):
+                    continue
+                if existing:
+                    cur.execute(
+                        "UPDATE sections SET embedding=%s, sparse_weights=%s WHERE id=%s",
+                        (dvec, json.dumps(svec) if svec else None, existing[0]),
+                    )
                     continue
                 cur.execute(
                     """INSERT INTO sections
