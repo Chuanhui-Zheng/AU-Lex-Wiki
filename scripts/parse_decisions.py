@@ -67,6 +67,10 @@ def make_chunks(record: dict) -> list[dict]:
 def main() -> None:
     index = json.loads((Path(config.data_dir) / "decisions_index.json").read_text())
     CHUNKS.mkdir(parents=True, exist_ok=True)
+    active_files = {f"decision_{record['id']}.jsonl" for record in index}
+    for stale in CHUNKS.glob("decision_*.jsonl"):
+        if stale.name not in active_files:
+            stale.unlink()
     total = 0
     for record in index:
         chunks = make_chunks(record)
