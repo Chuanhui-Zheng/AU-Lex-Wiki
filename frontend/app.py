@@ -29,7 +29,7 @@ def answer(question: str, conn=None, act_id: int | None = None, api_key: str | N
     return _answer(question, conn=conn, act_id=act_id, api_key=api_key,
                    provider=provider, model=model, base_url=base_url, mode=mode)
 
-app = FastAPI(title="AU-Lex-Wiki")
+app = FastAPI(title="AU-WorkLaw-Atlas")
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
 templates = Jinja2Templates(directory="frontend/templates")
 
