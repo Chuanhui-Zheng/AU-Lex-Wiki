@@ -3,27 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}AU-Lex-Wiki{% endblock %}</title>
+  <title>{% block title %}AU-WorkLaw-Atlas{% endblock %}</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body class="{% if request.url.path == '/chat' %}chat-page{% endif %}">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="header-inner">
-      <a href="/" class="logo" aria-label="AU-Lex-Wiki home">
+      <a href="/" class="logo" aria-label="AU-WorkLaw-Atlas home">
         <span class="logo-mark">A</span>
-        <span>AU-Lex<span class="logo-muted">/Wiki</span></span>
+        <span>AU-WorkLaw<span class="logo-muted">/Atlas</span></span>
       </a>
       <form class="header-search" action="/search" method="get">
         <span class="search-icon" aria-hidden="true">⌕</span>
-        <input type="search" name="q" placeholder="Search Acts, sections and terms…"
+        <input type="search" name="q" placeholder="Search workplace law, clauses and terms…"
                value="{{ request.query_params.get('q', '') }}">
         <kbd>/</kbd>
       </form>
       <nav class="header-nav">
         <a href="/">Library</a>
         <a href="/chat" class="nav-ask" id="askToggle">Ask the corpus</a>
-        <a href="https://github.com/Chuanhui-Zheng/AU-Lex-Rag" target="_blank" rel="noopener" class="nav-icon-link">GitHub</a>
+        <a href="https://github.com/Chuanhui-Zheng/AU-WorkLaw-Atlas" target="_blank" rel="noopener" class="nav-icon-link">GitHub</a>
         <button type="button" class="nav-icon-link nav-button" id="shareButton">Share</button>
         <button type="button" class="theme-toggle nav-button" id="themeToggle" aria-label="Toggle color theme">◐</button>
       </nav>
@@ -38,14 +38,14 @@
     {% block aside %}{% endblock %}
   </div>
 
-  <section class="ask-dock" id="askDock" aria-label="Ask AU-Lex">
-    <button type="button" class="ask-orb" id="askOrb" aria-label="Open Ask AU-Lex" aria-expanded="false">
+  <section class="ask-dock" id="askDock" aria-label="Ask WorkLaw Atlas">
+    <button type="button" class="ask-orb" id="askOrb" aria-label="Open Ask WorkLaw Atlas" aria-expanded="false">
       <span class="ask-orb-mark">A</span>
       <span class="ask-orb-pulse" aria-hidden="true"></span>
     </button>
     <div class="ask-dock-panel" id="askDockPanel" aria-hidden="true">
       <div class="ask-dock-header">
-        <div><span class="eyebrow"><span class="status-dot"></span> Ask AU-Lex</span><strong id="askModeLabel">Offline evidence mode</strong></div>
+        <div><span class="eyebrow"><span class="status-dot"></span> Ask WorkLaw Atlas</span><strong id="askModeLabel">Offline evidence mode</strong></div>
         <div class="ask-dock-actions">
           <div class="mode-toggle" role="group" aria-label="Ask mode">
             <button type="button" class="mode-option is-active" data-mode="offline">Offline</button>
