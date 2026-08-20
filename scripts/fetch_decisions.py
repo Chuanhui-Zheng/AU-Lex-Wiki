@@ -16,7 +16,11 @@ def fetch_one(record: dict, raw_dir: Path) -> dict:
     if not target.exists() or target.stat().st_size < 1000:
         response = httpx.get(record["url"], timeout=120, follow_redirects=True)
         response.raise_for_status()
+        if suffix == ".pdf" and not response.content.startswith(b"%PDF"):
+            raise ValueError(f"official source did not return a PDF: {record['url']}")
         target.write_bytes(response.content)
+    if target.stat().st_size < 1000:
+        raise ValueError(f"decision source is unexpectedly small: {target}")
     return {
         **record,
         "path": str(target),
