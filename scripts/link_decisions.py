@@ -66,7 +66,8 @@ def main() -> None:
                     """,
                     (decision_id, relation_type, target_act_id, section,
                      target_award_id, relation.get("target_clause"),
-                     relation.get("target_enterprise_agreement"), record["citation"]),
+                     relation.get("target_enterprise_agreement"),
+                     relation.get("evidence", record["citation"])),
                 )
                 edges += 1
     conn.commit()
