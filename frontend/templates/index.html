@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% block title %}AU-Lex-Wiki — Commonwealth Legislation{% endblock %}
+{% block title %}AU-WorkLaw-Atlas — Australian workplace law{% endblock %}
 
 {% block content %}
 <div class="workspace-shell">
   <section class="hero hero-workspace">
-    <div class="eyebrow"><span class="status-dot"></span> Commonwealth legislation workspace</div>
+    <div class="eyebrow"><span class="status-dot"></span> Australian workplace law workspace</div>
     <h1>Find the rule.<br><em>See the evidence.</em></h1>
-    <p class="hero-sub">Search Australian Commonwealth legislation section by section, then ask a grounded question with the source text in view.</p>
+    <p class="hero-sub">Search workplace-law provisions, Awards and official guidance, then ask a grounded question with the source text in view.</p>
     <form class="hero-search" action="/search" method="get">
       <span class="search-icon" aria-hidden="true">⌕</span>
-      <input type="search" name="q" placeholder="Try “privacy collection notice”" aria-label="Search legislation">
+      <input type="search" name="q" placeholder="Try “casual employment minimum entitlements”" aria-label="Search workplace law">
       <button type="submit">Search</button>
     </form>
     <div class="suggestions">
@@ -21,7 +21,7 @@
   </section>
 
   <section class="metrics-grid" aria-label="Corpus coverage">
-    <div class="metric-card"><span class="metric-label">In-force Acts</span><strong>{{ acts|length }}</strong><span class="metric-note">official register corpus</span></div>
+    <div class="metric-card"><span class="metric-label">Indexed documents</span><strong>{{ acts|length }}</strong><span class="metric-note">official workplace-law sources</span></div>
     <div class="metric-card"><span class="metric-label">Sections</span><strong>{{ "{:,}".format(section_count) }}</strong><span class="metric-note">latest compilations</span></div>
     <div class="metric-card"><span class="metric-label">Cross-references</span><strong>{{ "{:,}".format(ref_count) }}</strong><span class="metric-note">linked provisions</span></div>
   </section>
@@ -29,8 +29,8 @@
 
 <section class="library-workspace">
   <div class="library-toolbar">
-    <div><div class="eyebrow">Your legal library</div><h2>Browse Acts</h2></div>
-    <span class="library-hint">Select an Act to read it here</span>
+    <div><div class="eyebrow">Your workplace-law library</div><h2>Browse documents</h2></div>
+    <span class="library-hint">Select a document to read it here</span>
   </div>
   <div class="library-split">
     <div class="act-list" id="actList">
@@ -45,8 +45,8 @@
     <section class="act-preview" id="actPreview" aria-live="polite">
       <div class="preview-placeholder">
         <div class="empty-chat-mark">A</div>
-        <h2>Choose an Act</h2>
-        <p>The Act overview and sections will appear here without leaving the library.</p>
+        <h2>Choose a document</h2>
+        <p>The document overview and provisions will appear here without leaving the library.</p>
       </div>
     </section>
   </div>
@@ -157,7 +157,7 @@ function renderLibraryChat(data = null, query = '') {
 
   const header = document.createElement('div');
   header.className = 'preview-header library-chat-header';
-  header.innerHTML = '<div><div class="eyebrow">Ask the corpus</div><h2>AU-Lex Assistant</h2><p class="preview-meta"></p></div><div class="library-chat-actions"></div>';
+  header.innerHTML = '<div><div class="eyebrow">Ask the corpus</div><h2>AU-WorkLaw Assistant</h2><p class="preview-meta"></p></div><div class="library-chat-actions"></div>';
   header.querySelector('.preview-meta').textContent = act
     ? `${act.name} · scoped to this Act`
     : 'Grounded in the indexed legislation';
@@ -193,7 +193,7 @@ function renderLibraryChat(data = null, query = '') {
     answer.className = 'preview-chat-answer';
     const label = document.createElement('div');
     label.className = 'eyebrow';
-    label.textContent = 'AU-LEX ASSISTANT';
+    label.textContent = 'WORKLAW ATLAS ASSISTANT';
     const copy = document.createElement('p');
     copy.className = 'preview-chat-copy';
     copy.textContent = data.answer || data.error || 'No answer returned.';
