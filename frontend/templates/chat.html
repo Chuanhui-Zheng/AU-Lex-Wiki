@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Ask — AU-Lex-Wiki{% endblock %}
+{% block title %}Ask — AU-WorkLaw-Atlas{% endblock %}
 
 {% block content %}
 <div class="chat-layout">
   <section class="chat-container">
     <div class="eyebrow"><span class="status-dot"></span> Source-grounded assistant</div>
     <h1>Ask the corpus</h1>
-    <p class="chat-desc">Ask about the legislation currently indexed. Every answer must point back to retrieved sections; if the evidence is not there, the assistant will say so.</p>
+      <p class="chat-desc">Ask about the workplace-law sources currently indexed. Every answer must point back to retrieved provisions; if the evidence is not there, the assistant will say so.</p>
 
     <div class="guardrail-banner">
       <span class="guardrail-icon">✓</span>
@@ -49,7 +49,7 @@
 
     <form class="chat-form" id="chatForm">
       <label class="sr-only" for="chatInput">Question</label>
-      <textarea id="chatInput" placeholder="Ask a precise question about the indexed legislation…" rows="3"></textarea>
+      <textarea id="chatInput" placeholder="Ask a precise question about the indexed workplace law…" rows="3"></textarea>
       <button type="submit" id="chatSubmit">Ask</button>
     </form>
     <p class="chat-footnote">Research aid only. Check the cited source and obtain professional advice for decisions.</p>
@@ -219,7 +219,7 @@ function appendMessage(role, content, sources) {
 
   const label = document.createElement('span');
   label.className = 'message-label';
-  label.textContent = role === 'user' ? 'You' : 'AU-Lex assistant';
+  label.textContent = role === 'user' ? 'You' : 'AU-WorkLaw assistant';
   div.appendChild(label);
 
   const text = document.createElement('p');
