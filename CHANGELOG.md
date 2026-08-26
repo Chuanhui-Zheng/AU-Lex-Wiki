@@ -1,19 +1,13 @@
 # Changelog
 
-## v0.3.0 — Official guidance and measurable RAG quality
+## v0.4.0 — V4 FWC decisions
 
-- indexed FWO Workplace Guides, Fact Sheets and Best Practice Guides;
-- exposed primary-law, instrument and official-guidance labels in evidence;
-- added a reproducible retrieval/refusal benchmark and generated Markdown
-  report with resume-ready baseline comparisons;
-- explicitly separated offline retrieval proxies from unmeasured RAGAS metrics.
-
-## v0.2.0 — Modern Awards baseline
-
-- indexed the current official Modern Award catalogue;
-- added Award clause, table and variation-history parsing;
-- added independent official Pay Guide documents;
-- added title-aware offline retrieval, exact section ranking and workplace-law
-  refusal gating;
-- kept BGE-M3 optional and the default profile text-only;
-- added provenance, validation, orchestration and smoke-test tooling.
+- added a curated six-decision Fair Work Commission source set;
+- added PDF fetch, parsing, text-only ingestion and provenance checks;
+- added `decisions` and `decision_refs` graph tables;
+- added `cites`, `interprets` and `concerns` edges;
+- improved case-caption retrieval for partial party-name questions;
+- added `/decisions` and `/decision/{decision_id}` inspection pages;
+- added V4 retrieval/refusal benchmark and resume-ready measured metrics;
+- kept BGE-M3 embeddings disabled by default, with zero stored vectors in the
+  accepted V4 local profile.
