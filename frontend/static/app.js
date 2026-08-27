@@ -1,4 +1,4 @@
-/* AU-Lex-Wiki: shared JS utilities */
+/* AU-WorkLaw-Atlas: shared JS utilities */
 
 // Keyboard shortcut: / focuses search
 document.addEventListener('keydown', (e) => {
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   document.getElementById('shareButton')?.addEventListener('click', async () => {
-    const shareData = {title: document.title, text: 'AU-Lex-Wiki', url: window.location.href};
+    const shareData = {title: document.title, text: 'AU-WorkLaw-Atlas', url: window.location.href};
     try {
       if (navigator.share) await navigator.share(shareData);
       else {
