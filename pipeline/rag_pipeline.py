@@ -136,6 +136,11 @@ def source_payload(sections: list[dict]) -> list[dict]:
         {
             "marker": f"S{i}",
             "id": s.get("id"),
+            "decision_id": (
+                s.get("title_id", "")[4:]
+                if s.get("document_type") == "decision" and s.get("title_id", "").startswith("DEC-")
+                else None
+            ),
             "act_name": s["act_name"],
             "document_type": s.get("document_type", "legislation"),
             "authority_level": s.get("authority_level", "primary_law"),
