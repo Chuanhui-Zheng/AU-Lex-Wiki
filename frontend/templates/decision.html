@@ -7,6 +7,7 @@
   <div id="decisionHeader">Loading decision…</div>
   <section class="decision-graph" aria-labelledby="relationsHeading">
     <div class="eyebrow" id="relationsHeading">Evidence graph</div>
+    <div id="decisionNetwork" class="decision-network" aria-label="Decision relationship graph"></div>
     <div id="decisionRelations" class="decision-relations"></div>
   </section>
 </div>
@@ -33,6 +34,11 @@ fetch(`/api/decision/${encodeURIComponent(decisionId)}`)
     source.textContent = 'Open official decision';
     header.replaceChildren(heading, meta, source);
     const relations = document.getElementById('decisionRelations');
+    const network = document.getElementById('decisionNetwork');
+    const center = document.createElement('div');
+    center.className = 'decision-network-node is-center';
+    center.textContent = decision.citation;
+    network.appendChild(center);
     if (!decision.refs.length) {
       relations.textContent = 'No graph edges are registered for this decision.';
       return;
@@ -45,6 +51,10 @@ fetch(`/api/decision/${encodeURIComponent(decisionId)}`)
       const target = document.createElement('span');
       target.textContent = ref.target_award_name || ref.target_act_name || ref.target_enterprise_agreement || ref.target_section_no || 'unresolved target';
       item.append(label, target);
+      const node = document.createElement('div');
+      node.className = 'decision-network-node';
+      node.textContent = `${ref.relation_type} → ${target.textContent}`;
+      network.appendChild(node);
       if (ref.target_clause || ref.target_section_no) {
         const detail = document.createElement('small');
         detail.textContent = [ref.target_section_no && `section ${ref.target_section_no}`, ref.target_clause && `clause ${ref.target_clause}`].filter(Boolean).join(' · ');
