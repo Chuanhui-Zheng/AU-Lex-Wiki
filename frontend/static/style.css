@@ -537,6 +537,11 @@ body { background: var(--bg); color: var(--text); }
 .decision-meta { margin: .35rem 0 0; color: var(--text-muted); font-size: .75rem; text-transform: capitalize; }
 .back-link { display: inline-block; margin-bottom: 1rem; color: var(--accent); font-size: .78rem; font-weight: 700; }
 .decision-graph { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.decision-network { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .55rem; margin: .8rem 0 1rem; padding: .8rem; border: 1px dashed var(--border); border-radius: 10px; background: color-mix(in srgb, var(--surface-soft) 55%, transparent); }
+.decision-network-node { max-width: 260px; padding: .4rem .55rem; border: 1px solid var(--border); border-radius: 999px; color: var(--text-muted); font-size: .68rem; text-align: center; }
+.decision-network-node::before { content: '• '; color: var(--accent); }
+.decision-network-node.is-center { border-color: var(--accent); color: var(--accent); font-weight: 800; }
+.decision-network-node.is-center::before { content: '● '; }
 .decision-relations { display: grid; gap: .6rem; margin-top: .65rem; }
 .relation-card { display: grid; grid-template-columns: 105px minmax(0, 1fr); gap: .5rem; align-items: baseline; }
 .relation-card strong { color: var(--accent); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; }
