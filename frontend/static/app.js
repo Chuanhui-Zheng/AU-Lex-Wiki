@@ -147,7 +147,9 @@ document.addEventListener('DOMContentLoaded', () => {
       sources.appendChild(label);
       data.sources.slice(0, 3).forEach(source => {
         const link = document.createElement('a');
-        link.href = source.id ? `/section/${source.id}` : (source.source_url || '#');
+        link.href = source.decision_id
+          ? `/decision/${encodeURIComponent(source.decision_id)}`
+          : (source.id ? `/section/${source.id}` : (source.source_url || '#'));
         const authority = source.authority_level === 'official_guidance'
           ? 'official guidance'
           : (source.document_type || 'primary law').replaceAll('_', ' ');
