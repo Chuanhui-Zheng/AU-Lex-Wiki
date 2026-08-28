@@ -6,6 +6,7 @@ FastAPI web server: wiki browsing + RAG chat interface.
 import psycopg2
 import markdown as md_lib
 from pathlib import Path
+from typing import Optional
 from fastapi import FastAPI, Request, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -295,7 +296,7 @@ async def evaluation(version: str = Query(default="latest")):
 # ── Fair Work Commission decisions ──────────────────────────────────────────
 
 @app.get("/api/decisions")
-async def decisions(category: str | None = None, limit: int = Query(default=50, ge=1, le=200)):
+async def decisions(category: Optional[str] = None, limit: int = Query(default=50, ge=1, le=200)):
     """Return curated FWC decisions and their linked graph edges."""
     conn = get_conn()
     cur = conn.cursor()
