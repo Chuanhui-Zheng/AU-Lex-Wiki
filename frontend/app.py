@@ -55,11 +55,14 @@ async def index(request: Request):
     section_count = cur.fetchone()[0]
     cur.execute("SELECT COUNT(*) FROM section_refs")
     ref_count = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM decisions")
+    decision_count = cur.fetchone()[0]
     cur.close(); conn.close()
     return templates.TemplateResponse(request, "index.html", {
         "acts": acts,
         "section_count": section_count,
         "ref_count": ref_count,
+        "decision_count": decision_count,
     })
 
 
