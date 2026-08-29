@@ -11,13 +11,29 @@
     </div>
     <a class="btn-secondary" href="/">Back to Atlas</a>
   </div>
+  <label class="decision-filter">Filter by case type
+    <select id="decisionCategory">
+      <option value="">All curated decisions</option>
+      <option value="annual_wage_review">Annual wage review</option>
+      <option value="general_protections">General protections</option>
+      <option value="unfair_dismissal">Unfair dismissal</option>
+      <option value="enterprise_agreement_approval">Enterprise agreement approval</option>
+    </select>
+  </label>
   <div id="decisionList" class="decision-list" aria-live="polite">Loading decisions…</div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-fetch('/api/decisions')
+const category = new URLSearchParams(window.location.search).get('category') || '';
+const categoryInput = document.getElementById('decisionCategory');
+categoryInput.value = category;
+categoryInput.addEventListener('change', () => {
+  const query = categoryInput.value ? `?category=${encodeURIComponent(categoryInput.value)}` : '';
+  window.location.href = `/decisions${query}`;
+});
+fetch(`/api/decisions${category ? `?category=${encodeURIComponent(category)}` : ''}`)
   .then(response => response.json())
   .then(({decisions}) => {
     const list = document.getElementById('decisionList');
