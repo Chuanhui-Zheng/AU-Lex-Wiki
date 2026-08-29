@@ -531,6 +531,8 @@ body { background: var(--bg); color: var(--text); }
 .graph-link { stroke: var(--accent); stroke-opacity: .28; }
 .decision-page h1 { margin-bottom: .35rem; }
 .decision-list { display: grid; gap: .65rem; }
+.decision-filter { display: inline-grid; gap: .3rem; margin: .3rem 0 1rem; color: var(--text-muted); font-size: .72rem; font-weight: 700; }
+.decision-filter select { min-width: 220px; border: 1px solid var(--border); border-radius: 7px; padding: .45rem .55rem; background: var(--surface); color: var(--text); font: .78rem inherit; }
 .decision-card, .relation-card { padding: .85rem 1rem; border: 1px solid var(--border); border-radius: 9px; background: color-mix(in srgb, var(--surface-soft) 62%, transparent); }
 .decision-card h2 { margin: 0; font-size: .95rem; }
 .decision-card h2 a { color: var(--accent); }
