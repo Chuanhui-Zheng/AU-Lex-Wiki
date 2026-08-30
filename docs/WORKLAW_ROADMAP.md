@@ -1,5 +1,9 @@
 # AU-WorkLaw-Atlas ingestion roadmap
 
+**Current baseline:** V1 federal workplace-law core is implemented with the
+Fair Work Act, Fair Work Regulations, PostgreSQL full-text retrieval, grounded
+Ask, and clause-level reference extraction.
+
 ## V1 — Federal legal core
 
 - Fair Work Act 2009 from the Federal Register of Legislation;
