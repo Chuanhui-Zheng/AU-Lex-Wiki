@@ -1,0 +1,81 @@
+[
+  {
+    "agreement_id": "AE521821",
+    "title": "Apple Australia National Enterprise Agreement 2023",
+    "industry": "Retail",
+    "employer": "Apple Pty Limited",
+    "matter_number": "AG2023/3058",
+    "version": 1,
+    "approval_date": "2023-10-09",
+    "nominal_expiry": null,
+    "status": "published",
+    "url": "https://www.fwc.gov.au/documents/agreements/approved/ae521821.pdf",
+    "approval_decision_citation": "[2023] FWCFB 185",
+    "award_links": [{"award": "Clerks - Private Sector Award", "relation": "compares_to"}]
+  },
+  {
+    "agreement_id": "AE525456",
+    "title": "Academic and Professional Employees Enterprise Agreement 2024",
+    "industry": "Professional Employees",
+    "employer": "Unspecified in catalogue extract",
+    "matter_number": null,
+    "version": 1,
+    "approval_date": null,
+    "nominal_expiry": null,
+    "status": "published",
+    "url": "https://www.fwc.gov.au/documents/agreements/approved/ae525456.pdf",
+    "award_links": [{"award": "Professional Employees Award", "relation": "compares_to"}]
+  },
+  {
+    "agreement_id": "AE524636",
+    "title": "Ray White Mt Gravatt Enterprise Agreement 2024",
+    "industry": "Clerks",
+    "employer": "Ray White Mt Gravatt",
+    "matter_number": null,
+    "version": 1,
+    "approval_date": null,
+    "nominal_expiry": null,
+    "status": "published",
+    "url": "https://www.fwc.gov.au/documents/agreements/approved/ae524636.pdf",
+    "award_links": [{"award": "Clerks - Private Sector Award", "relation": "compares_to"}]
+  },
+  {
+    "agreement_id": "AE531730",
+    "title": "Boneham Aged Care Services Inc Aged Care Sector Employees Enterprise Agreement 2025",
+    "industry": "Aged Care",
+    "employer": "Boneham Aged Care Services Inc",
+    "matter_number": "AG2025/4280",
+    "version": 1,
+    "approval_date": "2026-01-12",
+    "nominal_expiry": "2028-06-30",
+    "status": "published",
+    "url": "https://www.fwc.gov.au/documents/agreements/approved/ae531730.pdf",
+    "award_links": [{"award": "Aged Care Award", "relation": "compares_to"}]
+  },
+  {
+    "agreement_id": "AE529157",
+    "title": "Compass Group ESS Offshore Oil & Gas (BW Offshore) Enterprise Agreement 2025",
+    "industry": "Hospitality",
+    "employer": "Compass Group",
+    "matter_number": "AG2025/1360",
+    "version": 1,
+    "approval_date": "2025-06-04",
+    "nominal_expiry": "2029-05-28",
+    "status": "published",
+    "url": "https://www.fwc.gov.au/documents/agreements/approved/ae529157.pdf",
+    "award_links": [{"award": "Hospitality Industry (General) Award", "relation": "compares_to"}]
+  },
+  {
+    "agreement_id": "AE524557",
+    "title": "Border Express Pty Ltd Transport Employees and TWU Sydney, Newcastle and Central Coast Site Agreement 2024",
+    "industry": "Transport",
+    "employer": "Border Express Pty Ltd",
+    "matter_number": "AG2025/4707",
+    "version": 2,
+    "approval_date": "2026-03-04",
+    "nominal_expiry": "2026-12-04",
+    "status": "published",
+    "url": "https://www.fwc.gov.au/documents/agreements/approved/ae524557.pdf",
+    "award_links": [{"award": "Road Transport and Distribution Award", "relation": "compares_to"}]
+  }
+]
