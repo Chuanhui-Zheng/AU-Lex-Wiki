@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS acts (
     series_id       text,
     status          text DEFAULT 'inforce',   -- inforce | repealed
     year            int,
-    document_type   text DEFAULT 'legislation', -- legislation | award | pay_guide | guidance
-    authority_level text DEFAULT 'primary_law',  -- primary_law | instrument | official_guidance
+    document_type   text DEFAULT 'legislation', -- legislation | award | pay_guide | guidance | decision | enterprise_agreement
+    authority_level text DEFAULT 'primary_law',  -- primary_law | instrument | official_guidance | decision
     publisher       text,
     source_url      text,
     fetched_at      timestamptz DEFAULT now()
@@ -136,6 +136,42 @@ CREATE TABLE IF NOT EXISTS decision_refs (
 CREATE INDEX IF NOT EXISTS idx_decision_refs_decision ON decision_refs(decision_id);
 CREATE INDEX IF NOT EXISTS idx_decision_refs_act ON decision_refs(target_act_id);
 CREATE INDEX IF NOT EXISTS idx_decision_refs_award ON decision_refs(target_award_id);
+
+-- ─────────────────────────────────────────────
+-- Enterprise agreements and cross-source links
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS enterprise_agreements (
+    id                 bigserial PRIMARY KEY,
+    act_id             bigint UNIQUE NOT NULL REFERENCES acts(id) ON DELETE CASCADE,
+    agreement_id       text UNIQUE NOT NULL,       -- FWC AE identifier
+    matter_number      text,
+    version            int,
+    employer           text,
+    industry           text,
+    approval_date      date,
+    nominal_expiry     date,
+    status             text NOT NULL DEFAULT 'published', -- published | current | expired | terminated | unknown
+    source_url         text NOT NULL,
+    metadata_source_url text,
+    fetched_at         timestamptz DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_agreements_industry ON enterprise_agreements(industry);
+CREATE INDEX IF NOT EXISTS idx_enterprise_agreements_expiry ON enterprise_agreements(nominal_expiry);
+
+CREATE TABLE IF NOT EXISTS agreement_refs (
+    id              bigserial PRIMARY KEY,
+    agreement_id    bigint NOT NULL REFERENCES enterprise_agreements(id) ON DELETE CASCADE,
+    relation_type   text NOT NULL CHECK (relation_type IN ('covers','compares_to','varies','approved_by')),
+    target_award_id bigint REFERENCES acts(id) ON DELETE SET NULL,
+    target_act_id   bigint REFERENCES acts(id) ON DELETE SET NULL,
+    target_decision_id bigint REFERENCES decisions(id) ON DELETE SET NULL,
+    target_clause   text,
+    evidence        text
+);
+
+CREATE INDEX IF NOT EXISTS idx_agreement_refs_agreement ON agreement_refs(agreement_id);
+CREATE INDEX IF NOT EXISTS idx_agreement_refs_award ON agreement_refs(target_award_id);
 
 CREATE INDEX IF NOT EXISTS idx_entities_section ON entities(section_id);
 CREATE INDEX IF NOT EXISTS idx_entities_type    ON entities(entity_type);

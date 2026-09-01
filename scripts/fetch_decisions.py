@@ -8,13 +8,18 @@ from tqdm import tqdm
 
 from config import config
 
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/138 Safari/537.36",
+    "Accept": "application/pdf,application/xhtml+xml,text/html;q=0.9,*/*;q=0.8",
+}
+
 
 def fetch_one(record: dict, raw_dir: Path) -> dict:
     suffix = ".html" if record["url"].lower().endswith((".htm", ".html")) else ".pdf"
     target = raw_dir / f"{record['id']}{suffix}"
     target.parent.mkdir(parents=True, exist_ok=True)
     if not target.exists() or target.stat().st_size < 1000:
-        response = httpx.get(record["url"], timeout=120, follow_redirects=True)
+        response = httpx.get(record["url"], headers=HEADERS, timeout=120, follow_redirects=True)
         response.raise_for_status()
         if suffix == ".pdf" and not response.content.startswith(b"%PDF"):
             raise ValueError(f"official source did not return a PDF: {record['url']}")

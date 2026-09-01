@@ -69,5 +69,17 @@
       {"type": "cites", "target_title": "Fair Work Act 2009", "sections": ["186", "193"]},
       {"type": "concerns", "target_enterprise_agreement": "enterprise agreement approval appeal"}
     ]
+  },
+  {
+    "id": "2023-fwcfb-185",
+    "case_name": "Apple Australia National Enterprise Agreement 2023 approval",
+    "citation": "[2023] FWCFB 185",
+    "decision_date": "2023-10-09",
+    "category": "enterprise_agreement_approval",
+    "url": "https://www.fwc.gov.au/documents/decisionssigned/pdf/2023fwcfb185.pdf",
+    "relations": [
+      {"type": "cites", "target_title": "Fair Work Act 2009", "sections": ["185", "186", "193"]},
+      {"type": "concerns", "target_enterprise_agreement": "Apple Australia National Enterprise Agreement 2023"}
+    ]
   }
 ]
