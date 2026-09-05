@@ -57,12 +57,15 @@ async def index(request: Request):
     ref_count = cur.fetchone()[0]
     cur.execute("SELECT COUNT(*) FROM decisions")
     decision_count = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM enterprise_agreements")
+    agreement_count = cur.fetchone()[0]
     cur.close(); conn.close()
     return templates.TemplateResponse(request, "index.html", {
         "acts": acts,
         "section_count": section_count,
         "ref_count": ref_count,
         "decision_count": decision_count,
+        "agreement_count": agreement_count,
     })
 
 
@@ -379,6 +382,82 @@ async def decision_data(decision_id: str):
         conn.close()
 
 
+@app.get("/api/agreements")
+async def agreements(industry: Optional[str] = None, limit: int = Query(default=100, ge=1, le=200)):
+    """Return selected Enterprise Agreements and their Award graph edge counts."""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        params = []
+        where = ""
+        if industry:
+            where = "WHERE lower(ea.industry)=lower(%s)"
+            params.append(industry)
+        cur.execute(f"""
+            SELECT ea.agreement_id, a.name, ea.industry, ea.employer,
+                   ea.approval_date::text, ea.nominal_expiry::text, ea.status,
+                   ea.source_url, COUNT(ar.id)
+            FROM enterprise_agreements ea
+            JOIN acts a ON a.id=ea.act_id
+            LEFT JOIN agreement_refs ar ON ar.agreement_id=ea.id
+            {where}
+            GROUP BY ea.id, a.id
+            ORDER BY ea.industry, ea.agreement_id
+            LIMIT %s
+        """, (*params, limit))
+        rows = [dict(zip(
+            ["agreement_id", "title", "industry", "employer", "approval_date",
+             "nominal_expiry", "status", "source_url", "edge_count"], row
+        )) for row in cur.fetchall()]
+        return JSONResponse({"agreements": rows, "count": len(rows)})
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.get("/api/agreement/{agreement_id}")
+async def agreement_data(agreement_id: str):
+    """Return Enterprise Agreement metadata and Award/Act/decision links."""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT ea.id, ea.agreement_id, a.id, a.name, ea.industry, ea.employer,
+                   ea.matter_number, ea.version, ea.approval_date::text,
+                   ea.nominal_expiry::text, ea.status, ea.source_url
+            FROM enterprise_agreements ea
+            JOIN acts a ON a.id=ea.act_id
+            WHERE ea.agreement_id=%s
+        """, (agreement_id,))
+        row = cur.fetchone()
+        if not row:
+            return JSONResponse({"error": "Enterprise Agreement not found"}, status_code=404)
+        agreement = dict(zip(
+            ["id", "agreement_id", "act_id", "title", "industry", "employer",
+             "matter_number", "version", "approval_date", "nominal_expiry", "status",
+             "source_url"], row
+        ))
+        cur.execute("""
+            SELECT ar.relation_type, ar.target_clause, ar.evidence,
+                   aw.id, aw.name, aa.id, aa.name, d.decision_id, d.citation
+            FROM agreement_refs ar
+            LEFT JOIN acts aw ON aw.id=ar.target_award_id
+            LEFT JOIN acts aa ON aa.id=ar.target_act_id
+            LEFT JOIN decisions d ON d.id=ar.target_decision_id
+            WHERE ar.agreement_id=%s
+            ORDER BY ar.id
+        """, (row[0],))
+        agreement["refs"] = [dict(zip(
+            ["relation_type", "target_clause", "evidence", "target_award_id",
+             "target_award_name", "target_act_id", "target_act_name",
+             "target_decision_id", "target_decision_citation"], ref
+        )) for ref in cur.fetchall()]
+        return JSONResponse(agreement)
+    finally:
+        cur.close()
+        conn.close()
+
+
 # ── Graph data (D3.js) ────────────────────────────────────────────────────────
 
 @app.get("/graph/{act_id}", response_class=HTMLResponse)
@@ -408,6 +487,16 @@ async def decisions_page(request: Request):
 @app.get("/decision/{decision_id}", response_class=HTMLResponse)
 async def decision_page(request: Request, decision_id: str):
     return templates.TemplateResponse(request, "decision.html", {"decision_id": decision_id})
+
+
+@app.get("/agreements", response_class=HTMLResponse)
+async def agreements_page(request: Request):
+    return templates.TemplateResponse(request, "agreements.html", {})
+
+
+@app.get("/agreement/{agreement_id}", response_class=HTMLResponse)
+async def agreement_page(request: Request, agreement_id: str):
+    return templates.TemplateResponse(request, "agreement.html", {"agreement_id": agreement_id})
 
 
 @app.get("/api/graph/{act_id}")

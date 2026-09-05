@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Enterprise Agreements — AU-WorkLaw-Atlas{% endblock %}
+
+{% block content %}
+<div class="graph-card agreement-page">
+  <div class="graph-toolbar">
+    <div>
+      <div class="eyebrow">V5 agreement layer</div>
+      <h1>Enterprise Agreements</h1>
+      <p class="graph-desc">Selected official FWC agreements across Clerks, Retail, Hospitality, Professional Employees, Aged Care and Transport.</p>
+    </div>
+    <a class="btn-secondary" href="/">Back to Atlas</a>
+  </div>
+  <label class="decision-filter">Filter by industry
+    <select id="agreementIndustry">
+      <option value="">All selected industries</option>
+      <option value="Clerks">Clerks</option>
+      <option value="Retail">Retail</option>
+      <option value="Hospitality">Hospitality</option>
+      <option value="Professional Employees">Professional Employees</option>
+      <option value="Aged Care">Aged Care</option>
+      <option value="Transport">Transport</option>
+    </select>
+  </label>
+  <div id="agreementList" class="decision-list" aria-live="polite">Loading agreements…</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const industry = new URLSearchParams(window.location.search).get('industry') || '';
+const industryInput = document.getElementById('agreementIndustry');
+industryInput.value = industry;
+industryInput.addEventListener('change', () => {
+  const query = industryInput.value ? `?industry=${encodeURIComponent(industryInput.value)}` : '';
+  window.location.href = `/agreements${query}`;
+});
+fetch(`/api/agreements${industry ? `?industry=${encodeURIComponent(industry)}` : ''}`)
+  .then(response => response.json())
+  .then(({agreements}) => {
+    const list = document.getElementById('agreementList');
+    list.replaceChildren();
+    agreements.forEach(agreement => {
+      const card = document.createElement('article');
+      card.className = 'decision-card';
+      const title = document.createElement('h2');
+      const link = document.createElement('a');
+      link.href = `/agreement/${encodeURIComponent(agreement.agreement_id)}`;
+      link.textContent = `${agreement.title} · ${agreement.agreement_id}`;
+      title.appendChild(link);
+      const meta = document.createElement('p');
+      meta.className = 'decision-meta';
+      meta.textContent = `${agreement.industry} · ${agreement.status} · nominal expiry ${agreement.nominal_expiry || 'not recorded'} · ${agreement.edge_count} graph edges`;
+      card.append(title, meta);
+      list.appendChild(card);
+    });
+  })
+  .catch(() => { document.getElementById('agreementList').textContent = 'Could not load the agreement index.'; });
+</script>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Enterprise Agreement — AU-WorkLaw-Atlas{% endblock %}
+
+{% block content %}
+<div class="graph-card agreement-page" id="agreementPage">
+  <a class="back-link" href="/agreements">← All Enterprise Agreements</a>
+  <div id="agreementHeader">Loading agreement…</div>
+  <section class="decision-graph" aria-labelledby="agreementGraphHeading">
+    <div class="eyebrow" id="agreementGraphHeading">Agreement graph</div>
+    <div id="agreementNetwork" class="decision-network" aria-label="Enterprise Agreement relationship graph"></div>
+    <div id="agreementRelations" class="decision-relations"></div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const agreementId = {{ agreement_id | tojson }};
+fetch(`/api/agreement/${encodeURIComponent(agreementId)}`)
+  .then(response => response.json())
+  .then(agreement => {
+    if (agreement.error) throw new Error(agreement.error);
+    const header = document.getElementById('agreementHeader');
+    const heading = document.createElement('h1');
+    heading.textContent = `${agreement.title} · ${agreement.agreement_id}`;
+    const meta = document.createElement('p');
+    meta.className = 'decision-meta';
+    meta.textContent = `${agreement.industry} · ${agreement.employer || 'employer not recorded'} · ${agreement.status} · approval ${agreement.approval_date || 'not recorded'} · nominal expiry ${agreement.nominal_expiry || 'not recorded'}`;
+    const source = document.createElement('a');
+    source.className = 'source-official';
+    source.href = agreement.source_url;
+    source.target = '_blank';
+    source.rel = 'noopener';
+    source.textContent = 'Open official agreement';
+    header.replaceChildren(heading, meta, source);
+    const network = document.getElementById('agreementNetwork');
+    const center = document.createElement('div');
+    center.className = 'decision-network-node is-center';
+    center.textContent = agreement.agreement_id;
+    network.appendChild(center);
+    const relations = document.getElementById('agreementRelations');
+    agreement.refs.forEach(ref => {
+      const targetText = ref.target_award_name || ref.target_act_name || ref.target_decision_citation || 'unresolved target';
+      const node = document.createElement('div');
+      node.className = 'decision-network-node';
+      node.textContent = `${ref.relation_type} → ${targetText}`;
+      network.appendChild(node);
+      const item = document.createElement('article');
+      item.className = 'relation-card';
+      const label = document.createElement('strong');
+      label.textContent = ref.relation_type;
+      const target = document.createElement('span');
+      target.textContent = targetText;
+      item.append(label, target);
+      if (ref.target_clause) {
+        const detail = document.createElement('small');
+        detail.textContent = `clause ${ref.target_clause}`;
+        item.appendChild(detail);
+      }
+      relations.appendChild(item);
+    });
+  })
+  .catch(error => { document.getElementById('agreementHeader').textContent = `Could not load agreement: ${error.message}`; });
+</script>
+{% endblock %}
