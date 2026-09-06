@@ -141,6 +141,11 @@ def source_payload(sections: list[dict]) -> list[dict]:
                 if s.get("document_type") == "decision" and s.get("title_id", "").startswith("DEC-")
                 else None
             ),
+            "agreement_id": (
+                s.get("title_id", "")[3:]
+                if s.get("document_type") == "enterprise_agreement" and s.get("title_id", "").startswith("AG-")
+                else None
+            ),
             "act_name": s["act_name"],
             "document_type": s.get("document_type", "legislation"),
             "authority_level": s.get("authority_level", "primary_law"),
