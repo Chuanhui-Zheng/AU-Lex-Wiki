@@ -169,7 +169,9 @@ function appendSource(source) {
   const link = document.createElement('a');
   link.href = source.decision_id
     ? `/decision/${encodeURIComponent(source.decision_id)}`
-    : (source.id ? `/section/${source.id}` : '#');
+    : (source.agreement_id
+      ? `/agreement/${encodeURIComponent(source.agreement_id)}`
+      : (source.id ? `/section/${source.id}` : '#'));
   const authority = source.authority_level === 'official_guidance'
     ? 'official guidance'
     : (source.document_type || 'primary law').replaceAll('_', ' ');
