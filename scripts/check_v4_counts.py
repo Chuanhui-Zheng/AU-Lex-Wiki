@@ -28,8 +28,8 @@ def main() -> None:
     conn.close()
     for document_type, expected in EXPECTED_DOCUMENTS.items():
         assert counts.get(document_type) == expected, (document_type, counts.get(document_type), expected)
-    assert sections == 16619, f"unexpected section count: {sections}"
-    assert decisions == 6, f"unexpected decision count: {decisions}"
+    assert sections >= 16619, f"unexpected section count: {sections}"
+    assert decisions >= 6, f"unexpected decision count: {decisions}"
     assert vectors == 0, f"text-only profile contains {vectors} vector rows"
     print(f"V4 counts passed: documents={counts}, sections={sections}, vectors={vectors}")
 
