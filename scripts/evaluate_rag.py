@@ -147,7 +147,7 @@ benchmark, not a claim about all Australian workplace-law questions.
 ## Reproduce
 
 ```bash
-python -m scripts.evaluate_rag --questions {payload['questions']['source']} --report docs/RAG_EVALUATION_V4.md --json-report output/rag_evaluation_v4.json
+python -m scripts.evaluate_rag --questions {payload['questions']['source']} --report {payload['reports']['report']} --json-report {payload['reports']['json']}
 ```
 """
 
@@ -190,6 +190,7 @@ def main() -> None:
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "profile": "postgres_fts_title_aware_text_only",
         "questions": {"total": len(questions), "in_scope": sum(q["in_scope"] for q in questions), "source": str(args.questions)},
+        "reports": {"report": str(args.report), "json": str(args.json_report)},
         "retrieval": {
             "baseline": retrieval_metrics(results, "baseline"),
             "optimized": retrieval_metrics(results, "optimized"),
