@@ -61,10 +61,17 @@ precedent.
 
 ## V5 — Agreements
 
-- selected Enterprise Agreements by industry first;
-- approval, nominal expiry, variation and termination metadata;
-- comparison against the relevant Modern Award;
-- privacy and publication-status checks before indexing.
+- six selected official Enterprise Agreements across Clerks, Retail,
+  Hospitality, Professional Employees, Aged Care and Transport;
+- agreement PDF clause parsing with approval, nominal expiry, version, employer,
+  matter number and publication-status metadata;
+- `Agreement -> compares_to -> Modern Award` edges;
+- `Agreement -> approved_by -> FWC decision` edges;
+- agreement-specific Ask evidence, API endpoints and graph pages;
+- a V5 benchmark covering agreement retrieval and refusal safeguards.
+
+V5 remains a curated industry slice. It is a comparison layer, not a claim
+that every Australian enterprise agreement is indexed.
 
 ## V6 — Graph-RAG
 
