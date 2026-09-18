@@ -86,6 +86,10 @@ python -m scripts.embed_and_ingest --skip-embedding
 python -m scripts.link_decisions
 python -m scripts.check_decisions
 
+# Add the selected Enterprise Agreement layer.
+python -m scripts.ingest_agreements
+python -m scripts.check_agreements
+
 # Optional upgrade: set ENABLE_LOCAL_EMBEDDINGS=true first, then run this to
 # add BGE-M3 vectors. It is not required for the default deployment.
 # python -m scripts.embed_and_ingest
@@ -128,6 +132,17 @@ The V4 decision layer is browsable at `/decisions`; each decision page shows
 the official source link and its explicit Act, Award and agreement graph edges.
 The same decision chunks are eligible for offline evidence answers and online
 LLM generation, subject to the existing citation and refusal gate.
+
+V5 agreements are browsable at `/agreements`; each agreement page shows its
+industry metadata, official PDF, Award comparison edge and approval decision
+when that decision is in the indexed FWC set. Reproduce the V5 benchmark with:
+
+```bash
+python -m scripts.evaluate_rag \
+  --questions config/eval_questions_v5.json \
+  --report docs/RAG_EVALUATION_V5.md \
+  --json-report output/rag_evaluation_v5.json
+```
 
 ## Run
 
