@@ -1,5 +1,6 @@
 """Fetch selected official Fair Work Commission enterprise agreements."""
 import json
+from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -25,7 +26,15 @@ def fetch_one(record: dict, raw_dir: Path) -> dict:
         target.write_bytes(response.content)
     if target.stat().st_size < 1000:
         raise ValueError(f"agreement source is unexpectedly small: {target}")
-    return {**record, "path": str(target), "publisher": "Fair Work Commission", "document_type": "enterprise_agreement", "authority_level": "instrument"}
+    return {
+        **record,
+        "path": str(target),
+        "pdf_bytes": target.stat().st_size,
+        "retrieved_at": datetime.now(timezone.utc).isoformat(),
+        "publisher": "Fair Work Commission",
+        "document_type": "enterprise_agreement",
+        "authority_level": "instrument",
+    }
 
 
 def main() -> None:
