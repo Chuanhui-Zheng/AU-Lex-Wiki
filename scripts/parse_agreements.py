@@ -56,6 +56,8 @@ def split_clauses(text: str, size: int = 4800) -> list[tuple[str, str, str]]:
 
 def make_chunks(record: dict) -> list[dict]:
     text = extract_text(Path(record["path"]))
+    if len(text) < 1000:
+        raise ValueError(f"agreement PDF has insufficient extractable text: {record['agreement_id']}")
     pieces = split_clauses(text)
     date = record.get("approval_date") or "1900-01-01"
     output = []
