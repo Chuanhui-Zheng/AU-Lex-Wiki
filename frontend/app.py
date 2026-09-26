@@ -383,7 +383,7 @@ async def decision_data(decision_id: str):
 
 
 @app.get("/api/agreements")
-async def agreements(industry: Optional[str] = None, limit: int = Query(default=100, ge=1, le=200)):
+async def agreements(industry: Optional[str] = None, status: Optional[str] = None, limit: int = Query(default=100, ge=1, le=200)):
     """Return selected Enterprise Agreements and their Award graph edge counts."""
     conn = get_conn()
     cur = conn.cursor()
@@ -393,6 +393,9 @@ async def agreements(industry: Optional[str] = None, limit: int = Query(default=
         if industry:
             where = "WHERE lower(ea.industry)=lower(%s)"
             params.append(industry)
+        if status:
+            where = (where + " AND " if where else "WHERE ") + "lower(ea.status)=lower(%s)"
+            params.append(status)
         cur.execute(f"""
             SELECT ea.agreement_id, a.name, ea.industry, ea.employer,
                    ea.approval_date::text, ea.nominal_expiry::text, ea.status,
