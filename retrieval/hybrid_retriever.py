@@ -153,8 +153,9 @@ def lexical_search(query: str, conn, k: int = None, act_id: int | None = None) -
         # normally names only the leading parties, so require a strong partial
         # match for decisions instead of requiring every caption token.
         decision_match = document_type == "decision" and len(overlap) >= 2
+        agreement_match = document_type == "enterprise_agreement" and len(overlap) >= 2
         full_title_match = len(title_terms) >= 2 and all(term in query_terms for term in title_terms)
-        if full_title_match or decision_match:
+        if full_title_match or decision_match or agreement_match:
             title_matches.append(candidate_id)
 
     if act_id:
