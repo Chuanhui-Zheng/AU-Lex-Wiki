@@ -22,6 +22,15 @@
       <option value="Transport">Transport</option>
     </select>
   </label>
+  <label class="decision-filter">Filter by publication status
+    <select id="agreementStatus">
+      <option value="">All statuses</option>
+      <option value="published">Published</option>
+      <option value="current">Current</option>
+      <option value="expired">Expired</option>
+      <option value="terminated">Terminated</option>
+    </select>
+  </label>
   <div id="agreementList" class="decision-list" aria-live="polite">Loading agreements…</div>
 </div>
 {% endblock %}
@@ -29,13 +38,23 @@
 {% block scripts %}
 <script>
 const industry = new URLSearchParams(window.location.search).get('industry') || '';
+const status = new URLSearchParams(window.location.search).get('status') || '';
 const industryInput = document.getElementById('agreementIndustry');
+const statusInput = document.getElementById('agreementStatus');
 industryInput.value = industry;
-industryInput.addEventListener('change', () => {
-  const query = industryInput.value ? `?industry=${encodeURIComponent(industryInput.value)}` : '';
-  window.location.href = `/agreements${query}`;
-});
-fetch(`/api/agreements${industry ? `?industry=${encodeURIComponent(industry)}` : ''}`)
+statusInput.value = status;
+function applyAgreementFilters() {
+  const params = new URLSearchParams();
+  if (industryInput.value) params.set('industry', industryInput.value);
+  if (statusInput.value) params.set('status', statusInput.value);
+  window.location.href = `/agreements${params.toString() ? `?${params}` : ''}`;
+}
+industryInput.addEventListener('change', applyAgreementFilters);
+statusInput.addEventListener('change', applyAgreementFilters);
+const queryParams = new URLSearchParams();
+if (industry) queryParams.set('industry', industry);
+if (status) queryParams.set('status', status);
+fetch(`/api/agreements${queryParams.toString() ? `?${queryParams}` : ''}`)
   .then(response => response.json())
   .then(({agreements}) => {
     const list = document.getElementById('agreementList');
