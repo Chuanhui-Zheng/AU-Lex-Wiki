@@ -13,10 +13,20 @@
 - [x] V5 benchmark reports Recall@5, MRR@5, evidence coverage, refusal and latency.
 - [x] BGE-M3 dense and sparse vectors remain empty in the default profile.
 
-Run the acceptance suite with:
+Run the acceptance suite with one command:
 
 ```bash
-python -m scripts.check_agreements
-python -m scripts.check_v5_api_contract
-python -m scripts.smoke_v5
+python -m scripts.run_v5_acceptance
+```
+
+The runner validates official FWC provenance, agreement/chunk completeness,
+exact release counts, API filtering and graph resolution. The retrieval
+benchmark is intentionally separate because it rewrites its generated report
+and latency sample:
+
+```bash
+python -m scripts.evaluate_rag \
+  --questions config/eval_questions_v5.json \
+  --report docs/RAG_EVALUATION_V5.md \
+  --json-report output/rag_evaluation_v5.json
 ```
