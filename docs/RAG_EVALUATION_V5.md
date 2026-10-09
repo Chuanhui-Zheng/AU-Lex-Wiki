@@ -1,6 +1,6 @@
 # RAG evaluation report
 
-Generated: `2026-11-19T20:07:52Z`  
+Generated: `2026-11-19T20:17:29Z`
 Profile: PostgreSQL full-text, title-aware retrieval, no BGE-M3 vectors.
 
 ## Resume-ready comparison
@@ -8,7 +8,7 @@ Profile: PostgreSQL full-text, title-aware retrieval, no BGE-M3 vectors.
 | Metric | Baseline: simple PostgreSQL FTS | Optimized: title-aware + domain-gated FTS | Change |
 |---|---:|---:|---:|
 | Recall@5 / source hit rate | 14.3% | 71.4% | +57.1 pp |
-| MRR@5 | 0.143 | 0.600 | +0.457 |
+| MRR@5 | 0.143 | 0.714 | +0.571 |
 | Evidence-term coverage proxy | 35.7% | 85.7% | +50.0 pp |
 
 The comparison uses `7` in-scope questions from
@@ -21,8 +21,8 @@ benchmark, not a claim about all Australian workplace-law questions.
 | Metric | Result |
 |---|---:|
 | Refusal accuracy | 100.0% (9/9) |
-| Median retrieval latency | 6.8 ms |
-| P95 retrieval latency | 223.4 ms |
+| Median retrieval latency | 12.3 ms |
+| P95 retrieval latency | 229.3 ms |
 
 ## What is and is not measured
 
