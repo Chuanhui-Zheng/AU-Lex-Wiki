@@ -37,7 +37,7 @@ The latest committed comparison is:
 | Metric | Baseline | Optimized | Improvement |
 |---|---:|---:|---:|
 | Recall@5 / source hit rate | 14.3% | 71.4% | +57.1 percentage points |
-| MRR@5 | 0.143 | 0.600 | +0.457 |
+| MRR@5 | 0.143 | 0.714 | +0.571 |
 | Evidence-term coverage proxy | 35.7% | 85.7% | +50.0 percentage points |
 | Refusal accuracy | — | 100.0% (9/9) | — |
 
