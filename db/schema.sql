@@ -173,6 +173,48 @@ CREATE TABLE IF NOT EXISTS agreement_refs (
 CREATE INDEX IF NOT EXISTS idx_agreement_refs_agreement ON agreement_refs(agreement_id);
 CREATE INDEX IF NOT EXISTS idx_agreement_refs_award ON agreement_refs(target_award_id);
 
+-- ─────────────────────────────────────────────
+-- V6 unified temporal graph
+-- ─────────────────────────────────────────────
+-- Source-specific tables remain the ingestion contracts. These two tables are
+-- a read-optimized projection for cross-source traversal and evidence paths.
+CREATE TABLE IF NOT EXISTS graph_nodes (
+    id              bigserial PRIMARY KEY,
+    node_key        text UNIQUE NOT NULL,       -- act:..., section:..., decision:..., agreement:...
+    node_type       text NOT NULL CHECK (node_type IN ('act','section','decision','agreement')),
+    label           text NOT NULL,
+    document_type   text,
+    source_url      text,
+    valid_from      date,
+    valid_to        date,
+    metadata        jsonb NOT NULL DEFAULT '{}'::jsonb
+);
+
+CREATE INDEX IF NOT EXISTS idx_graph_nodes_type ON graph_nodes(node_type);
+CREATE INDEX IF NOT EXISTS idx_graph_nodes_validity ON graph_nodes(valid_from, valid_to);
+
+CREATE TABLE IF NOT EXISTS graph_edges (
+    id              bigserial PRIMARY KEY,
+    from_node_id    bigint NOT NULL REFERENCES graph_nodes(id) ON DELETE CASCADE,
+    to_node_id      bigint NOT NULL REFERENCES graph_nodes(id) ON DELETE CASCADE,
+    relation_type   text NOT NULL CHECK (relation_type IN (
+        'cites','interprets','concerns','compares_to','approved_by',
+        'cross_ref','defines','delegates','overrides','varies'
+    )),
+    evidence        text,
+    source_url      text,
+    valid_from      date,
+    valid_to        date,
+    confidence      numeric(4,3) NOT NULL DEFAULT 1.0 CHECK (confidence >= 0 AND confidence <= 1),
+    metadata        jsonb NOT NULL DEFAULT '{}'::jsonb,
+    UNIQUE (from_node_id, to_node_id, relation_type, evidence)
+);
+
+CREATE INDEX IF NOT EXISTS idx_graph_edges_from ON graph_edges(from_node_id);
+CREATE INDEX IF NOT EXISTS idx_graph_edges_to ON graph_edges(to_node_id);
+CREATE INDEX IF NOT EXISTS idx_graph_edges_relation ON graph_edges(relation_type);
+CREATE INDEX IF NOT EXISTS idx_graph_edges_validity ON graph_edges(valid_from, valid_to);
+
 CREATE INDEX IF NOT EXISTS idx_entities_section ON entities(section_id);
 CREATE INDEX IF NOT EXISTS idx_entities_type    ON entities(entity_type);
 CREATE INDEX IF NOT EXISTS idx_entities_term    ON entities USING gin(to_tsvector('english', coalesce(term,'')));
