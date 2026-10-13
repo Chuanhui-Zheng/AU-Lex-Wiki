@@ -198,7 +198,7 @@ CREATE TABLE IF NOT EXISTS graph_edges (
     from_node_id    bigint NOT NULL REFERENCES graph_nodes(id) ON DELETE CASCADE,
     to_node_id      bigint NOT NULL REFERENCES graph_nodes(id) ON DELETE CASCADE,
     relation_type   text NOT NULL CHECK (relation_type IN (
-        'cites','interprets','concerns','compares_to','approved_by',
+        'cites','interprets','concerns','covers','compares_to','approved_by',
         'contains','cross_ref','defines','delegates','overrides','varies'
     )),
     evidence        text,
@@ -220,7 +220,7 @@ CREATE INDEX IF NOT EXISTS idx_graph_edges_validity ON graph_edges(valid_from, v
 ALTER TABLE graph_edges DROP CONSTRAINT IF EXISTS graph_edges_relation_type_check;
 ALTER TABLE graph_edges ADD CONSTRAINT graph_edges_relation_type_check CHECK (
     relation_type IN (
-        'contains','cites','interprets','concerns','compares_to','approved_by',
+        'contains','cites','interprets','concerns','covers','compares_to','approved_by',
         'cross_ref','defines','delegates','overrides','varies'
     )
 );
