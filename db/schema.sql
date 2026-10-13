@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS graph_edges (
     to_node_id      bigint NOT NULL REFERENCES graph_nodes(id) ON DELETE CASCADE,
     relation_type   text NOT NULL CHECK (relation_type IN (
         'cites','interprets','concerns','compares_to','approved_by',
-        'cross_ref','defines','delegates','overrides','varies'
+        'contains','cross_ref','defines','delegates','overrides','varies'
     )),
     evidence        text,
     source_url      text,
@@ -214,6 +214,16 @@ CREATE INDEX IF NOT EXISTS idx_graph_edges_from ON graph_edges(from_node_id);
 CREATE INDEX IF NOT EXISTS idx_graph_edges_to ON graph_edges(to_node_id);
 CREATE INDEX IF NOT EXISTS idx_graph_edges_relation ON graph_edges(relation_type);
 CREATE INDEX IF NOT EXISTS idx_graph_edges_validity ON graph_edges(valid_from, valid_to);
+
+-- Keep an existing V6 database in sync when the projection gains a structural
+-- Act→section edge on a later schema run.
+ALTER TABLE graph_edges DROP CONSTRAINT IF EXISTS graph_edges_relation_type_check;
+ALTER TABLE graph_edges ADD CONSTRAINT graph_edges_relation_type_check CHECK (
+    relation_type IN (
+        'contains','cites','interprets','concerns','compares_to','approved_by',
+        'cross_ref','defines','delegates','overrides','varies'
+    )
+);
 
 CREATE INDEX IF NOT EXISTS idx_entities_section ON entities(section_id);
 CREATE INDEX IF NOT EXISTS idx_entities_type    ON entities(entity_type);
