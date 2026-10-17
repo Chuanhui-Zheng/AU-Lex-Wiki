@@ -525,3 +525,79 @@ async def graph_data(act_id: int):
 
     cur.close(); conn.close()
     return JSONResponse({"nodes": nodes, "links": links})
+
+
+@app.get("/api/graph/path")
+async def graph_path(
+    start: str,
+    target: Optional[str] = None,
+    target_type: Optional[str] = None,
+    max_hops: int = Query(default=3, ge=1, le=5),
+    as_of: Optional[str] = None,
+):
+    """Return bounded, source-linked paths through the V6 temporal graph."""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT id FROM graph_nodes WHERE node_key=%s", (start,))
+        if not cur.fetchone():
+            return JSONResponse({"error": "Graph start node not found"}, status_code=404)
+        target_clause = ""
+        params = [start, max_hops]
+        if as_of:
+            target_clause += " AND (e.valid_from IS NULL OR e.valid_from <= %s::date) AND (e.valid_to IS NULL OR e.valid_to >= %s::date)"
+            params.extend([as_of, as_of])
+        cur.execute(f"""
+            WITH RECURSIVE walk AS (
+                SELECT n.id AS node_id, ARRAY[n.id]::bigint[] AS node_path,
+                       ARRAY[]::text[] AS relation_path, 0 AS hops
+                FROM graph_nodes n WHERE n.node_key=%s
+                UNION ALL
+                SELECT e.to_node_id, w.node_path || e.to_node_id,
+                       w.relation_path || e.relation_type, w.hops + 1
+                FROM walk w
+                JOIN graph_edges e ON e.from_node_id=w.node_id
+                WHERE w.hops < %s
+                  AND NOT (e.to_node_id = ANY(w.node_path))
+                  {target_clause}
+            )
+            SELECT w.node_id, w.node_path, w.relation_path, w.hops,
+                   n.node_key, n.node_type
+            FROM walk w JOIN graph_nodes n ON n.id=w.node_id
+            WHERE w.hops > 0
+              AND (%s IS NULL OR n.node_key=%s)
+              AND (%s IS NULL OR n.node_type=%s)
+            ORDER BY w.hops, n.node_key
+            LIMIT 50
+        """, (*params, target, target, target_type, target_type))
+        walks = cur.fetchall()
+        paths = []
+        for final_id, node_path, relation_path, hops, final_key, final_type in walks:
+            cur.execute("""
+                SELECT id, node_key, node_type, label, document_type, source_url,
+                       valid_from::text, valid_to::text
+                FROM graph_nodes
+                WHERE id = ANY(%s)
+                ORDER BY array_position(%s, id)
+            """, (node_path, node_path))
+            node_rows = cur.fetchall()
+            cur.execute("""
+                SELECT e.relation_type, e.evidence, e.source_url,
+                       e.valid_from::text, e.valid_to::text
+                FROM generate_series(1, %s) AS step(i)
+                JOIN graph_edges e
+                  ON e.from_node_id=(%s)[step.i] AND e.to_node_id=(%s)[step.i+1]
+                 AND e.relation_type=(%s)[step.i]
+                ORDER BY step.i
+            """, (len(node_path) - 1, node_path, node_path, relation_path))
+            edge_rows = cur.fetchall()
+            paths.append({
+                "hops": hops,
+                "target": {"node_key": final_key, "node_type": final_type},
+                "nodes": [dict(zip(["id", "node_key", "node_type", "label", "document_type", "source_url", "valid_from", "valid_to"], row)) for row in node_rows],
+                "edges": [dict(zip(["relation_type", "evidence", "source_url", "valid_from", "valid_to"], row)) for row in edge_rows[:hops]],
+            })
+        return JSONResponse({"start": start, "target": target, "target_type": target_type, "as_of": as_of, "paths": paths})
+    finally:
+        cur.close()
+        conn.close()
