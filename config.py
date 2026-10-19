@@ -20,6 +20,11 @@ class Config:
     enable_local_embeddings: bool = field(default_factory=lambda: os.getenv(
         "ENABLE_LOCAL_EMBEDDINGS", "false"
     ).lower() in {"1", "true", "yes"})
+    enable_graph_rag: bool = field(default_factory=lambda: os.getenv(
+        "ENABLE_GRAPH_RAG", "true"
+    ).lower() in {"1", "true", "yes"})
+    graph_max_hops: int = field(default_factory=lambda: int(os.getenv("GRAPH_MAX_HOPS", "2")))
+    graph_context_sections: int = field(default_factory=lambda: int(os.getenv("GRAPH_CONTEXT_SECTIONS", "8")))
     legislation_api_base: str = "https://api.prod.legislation.gov.au/v1"
     worklaw_source_manifest: str = "config/worklaw_sources.json"
     wiki_dir: str = "wiki"
