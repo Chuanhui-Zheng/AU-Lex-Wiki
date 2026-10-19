@@ -9,6 +9,7 @@ import anthropic
 import httpx
 from retrieval.hybrid_retriever import hybrid_search
 from retrieval.reranker import rerank
+from retrieval.graph_expander import load_expanded_sections
 from config import config
 
 _client: anthropic.Anthropic | None = None
@@ -125,6 +126,7 @@ def build_context(sections: list[dict]) -> str:
         parts.append(
             f"[S{i}] {s['act_name']} — s {s['section_no']}"
             + (f" [{s.get('authority_level', 'primary_law')}]" if s.get("authority_level") else "")
+            + (f" [graph hop {s['graph_hops']}]" if s.get("graph_hops") else "")
             + (f" ({s['section_heading']})" if s.get("section_heading") else "")
             + f"\n{s['body']}"
         )
@@ -153,6 +155,7 @@ def source_payload(sections: list[dict]) -> list[dict]:
             "section_heading": s.get("section_heading"),
             "body_preview": s["body"][:200],
             "score": s.get("rerank_score", 0),
+            "graph_hops": s.get("graph_hops", 0),
             "source_url": s.get("source_url", ""),
         }
         for i, s in enumerate(sections, 1)
@@ -221,6 +224,23 @@ def answer(
         seen_sections.add(key)
         unique_sections.append(section)
     top_sections = unique_sections
+
+    # Expand only the strongest local evidence through the bounded V6 graph.
+    # Graph expansion is additive and never replaces the directly retrieved
+    # provisions, so a missing projection cannot weaken the ordinary RAG path.
+    if config.enable_graph_rag and top_sections:
+        try:
+            seeds = [section["id"] for section in top_sections[:3] if section.get("id")]
+            expanded = load_expanded_sections(
+                seeds, conn, max_hops=config.graph_max_hops,
+                limit=config.graph_context_sections,
+            )
+            seen_ids = {section.get("id") for section in top_sections}
+            top_sections.extend(section for section in expanded if section.get("id") not in seen_ids)
+        except psycopg2.Error:
+            # V1-V5 databases can still answer with direct retrieval while the
+            # V6 projection is being built.
+            pass
 
     if close_conn:
         conn.close()
