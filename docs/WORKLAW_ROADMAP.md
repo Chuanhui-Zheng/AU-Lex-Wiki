@@ -75,6 +75,15 @@ that every Australian enterprise agreement is indexed.
 
 ## V6 — Graph-RAG
 
+当前已开始实现统一时序图投影和有界路径检索：
+
+- `graph_nodes` / `graph_edges` 统一 Act、section、decision、agreement 节点；
+- 节点和边携带 `valid_from` / `valid_to` 与官方来源；
+- `/api/graph/path` 返回可审计的多跳证据链；
+- Ask 保留直接召回，并在 `GRAPH_MAX_HOPS` 范围内补充图谱证据。
+
+后续再做复杂能力：
+
 - cross-source reference resolution;
 - temporal validity checks;
 - definition, exception, override and delegation edges;
