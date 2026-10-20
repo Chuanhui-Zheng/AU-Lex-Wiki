@@ -10,6 +10,10 @@
     <div id="agreementNetwork" class="decision-network" aria-label="Enterprise Agreement relationship graph"></div>
     <div id="agreementRelations" class="decision-relations"></div>
   </section>
+  <section class="decision-graph" aria-labelledby="pathHeading">
+    <div class="eyebrow" id="pathHeading">Cross-source evidence paths</div>
+    <div id="agreementPaths" class="decision-relations" aria-live="polite">Loading bounded graph paths…</div>
+  </section>
 </div>
 {% endblock %}
 
@@ -59,6 +63,31 @@ fetch(`/api/agreement/${encodeURIComponent(agreementId)}`)
       }
       relations.appendChild(item);
     });
+    fetch(`/api/graph/path?start=${encodeURIComponent(`agreement:${agreement.agreement_id}`)}&max_hops=3`)
+      .then(response => response.json())
+      .then(payload => {
+        const panel = document.getElementById('agreementPaths');
+        panel.replaceChildren();
+        const paths = payload.paths || [];
+        if (!paths.length) {
+          panel.textContent = 'No bounded cross-source path is indexed for this agreement.';
+          return;
+        }
+        paths.slice(0, 6).forEach(path => {
+          const item = document.createElement('article');
+          item.className = 'relation-card';
+          const title = document.createElement('strong');
+          title.textContent = `${path.hops}-hop evidence path`;
+          const trail = document.createElement('p');
+          trail.className = 'decision-meta';
+          trail.textContent = path.nodes.map(node => node.label).join('  →  ');
+          const relations = document.createElement('small');
+          relations.textContent = path.edges.map(edge => edge.relation_type).join('  →  ');
+          item.append(title, trail, relations);
+          panel.appendChild(item);
+        });
+      })
+      .catch(() => { document.getElementById('agreementPaths').textContent = 'Could not load graph paths.'; });
   })
   .catch(error => { document.getElementById('agreementHeader').textContent = `Could not load agreement: ${error.message}`; });
 </script>
