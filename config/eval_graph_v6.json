@@ -1,0 +1,38 @@
+[
+  {
+    "name": "agreement-to-approval-decision",
+    "start": "agreement:AE521821",
+    "target": "decision:2023-fwcfb-185",
+    "max_hops": 3
+  },
+  {
+    "name": "agreement-to-clerks-award",
+    "start": "agreement:AE521821",
+    "target": "act:MA000002",
+    "max_hops": 3
+  },
+  {
+    "name": "decision-to-fair-work-act-section",
+    "start": "decision:2024-fwcfb-458",
+    "target": "section:182",
+    "max_hops": 3
+  },
+  {
+    "name": "decision-to-another-act-section",
+    "start": "decision:2024-fwc-2383",
+    "target": "section:182",
+    "max_hops": 3
+  },
+  {
+    "name": "approval-decision-to-act-section",
+    "start": "decision:2023-fwcfb-185",
+    "target": "section:506",
+    "max_hops": 3
+  },
+  {
+    "name": "act-to-section",
+    "start": "act:C2009A00028",
+    "target": "section:506",
+    "max_hops": 3
+  }
+]
