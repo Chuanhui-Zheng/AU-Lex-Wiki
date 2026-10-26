@@ -21,6 +21,22 @@ def main() -> None:
               AND s.section_no=r.to_section_no
         """)
         resolved = cur.rowcount
+        # The current parser stores a parent section as the graph node while
+        # references often name a subsection such as 182(4) or 172(1)(a).
+        # Preserve the raw reference text and resolve it to that parent node.
+        cur.execute("""
+            UPDATE section_refs r
+            SET to_section_id=s.id
+            FROM sections s
+            JOIN acts a ON a.id=s.act_id
+            JOIN compilations c ON c.id=s.compilation_id
+            WHERE r.to_section_id IS NULL
+              AND r.to_act_name IS NOT NULL
+              AND c.is_latest=true
+              AND lower(trim(a.name))=lower(trim(r.to_act_name))
+              AND s.section_no=regexp_replace(r.to_section_no, '\\(.*$', '')
+        """)
+        resolved += cur.rowcount
         cur.execute("""
             SELECT COUNT(*) FROM section_refs
             WHERE to_section_id IS NULL AND to_act_name IS NOT NULL
