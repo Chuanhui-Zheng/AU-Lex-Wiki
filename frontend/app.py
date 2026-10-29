@@ -601,3 +601,38 @@ async def graph_path(
     finally:
         cur.close()
         conn.close()
+
+
+@app.get("/api/graph/conflicts")
+async def graph_conflicts(
+    as_of: Optional[str] = None,
+    limit: int = Query(default=50, ge=1, le=200),
+):
+    """Return conservative conflict candidates from typed override/variation edges."""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        params = []
+        validity = ""
+        if as_of:
+            validity = " AND (e.valid_from IS NULL OR e.valid_from <= %s::date) AND (e.valid_to IS NULL OR e.valid_to >= %s::date)"
+            params.extend([as_of, as_of])
+        cur.execute(f"""
+            SELECT e.id, e.relation_type, src.node_key, src.label,
+                   dst.node_key, dst.label, e.evidence, e.source_url,
+                   e.valid_from::text, e.valid_to::text, e.confidence
+            FROM graph_edges e
+            JOIN graph_nodes src ON src.id=e.from_node_id
+            JOIN graph_nodes dst ON dst.id=e.to_node_id
+            WHERE e.relation_type IN ('overrides','varies') {validity}
+            ORDER BY e.relation_type, e.id
+            LIMIT %s
+        """, (*params, limit))
+        columns = ["edge_id", "relation_type", "from_node", "from_label",
+                   "to_node", "to_label", "evidence", "source_url",
+                   "valid_from", "valid_to", "confidence"]
+        candidates = [dict(zip(columns, row)) for row in cur.fetchall()]
+        return JSONResponse({"status": "candidate_only", "conflicts": candidates, "count": len(candidates)})
+    finally:
+        cur.close()
+        conn.close()

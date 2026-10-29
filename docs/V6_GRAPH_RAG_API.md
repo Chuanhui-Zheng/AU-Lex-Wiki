@@ -25,6 +25,17 @@ The response contains ordered nodes and edges, including official source URLs,
 relation types, evidence text and validity dates. A missing path returns an
 empty `paths` array; it does not invent a relationship.
 
+## Conflict candidates
+
+```http
+GET /api/graph/conflicts
+GET /api/graph/conflicts?as_of=2025-01-01
+```
+
+This endpoint returns only explicitly typed `overrides` or `varies` edges. The
+response is labelled `candidate_only`: an override edge is a review signal,
+not an automatic legal conclusion that two provisions conflict.
+
 ## Graph-RAG Ask behavior
 
 When `ENABLE_GRAPH_RAG=true`, Ask keeps the strongest direct retrieval results
