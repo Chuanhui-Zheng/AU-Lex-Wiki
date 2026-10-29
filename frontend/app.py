@@ -632,6 +632,9 @@ async def graph_conflicts(
                    "to_node", "to_label", "evidence", "source_url",
                    "valid_from", "valid_to", "confidence"]
         candidates = [dict(zip(columns, row)) for row in cur.fetchall()]
+        for candidate in candidates:
+            if candidate["confidence"] is not None:
+                candidate["confidence"] = float(candidate["confidence"])
         return JSONResponse({"status": "candidate_only", "conflicts": candidates, "count": len(candidates)})
     finally:
         cur.close()
