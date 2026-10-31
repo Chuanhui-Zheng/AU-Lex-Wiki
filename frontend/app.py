@@ -639,3 +639,42 @@ async def graph_conflicts(
     finally:
         cur.close()
         conn.close()
+
+
+@app.get("/api/graph/timeline")
+async def graph_timeline(node: str):
+    """Return point-in-time versions or validity interval for one graph node."""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT id, node_key, node_type, label, document_type, source_url,
+                   valid_from::text, valid_to::text
+            FROM graph_nodes WHERE node_key=%s
+        """, (node,))
+        row = cur.fetchone()
+        if not row:
+            return JSONResponse({"error": "Graph node not found"}, status_code=404)
+        node_data = dict(zip(
+            ["id", "node_key", "node_type", "label", "document_type", "source_url", "valid_from", "valid_to"],
+            row,
+        ))
+        timeline = []
+        if node.startswith("act:"):
+            title_id = node[4:]
+            cur.execute("""
+                SELECT c.document_id, c.compilation_dt::text, c.is_latest, c.xml_path
+                FROM compilations c JOIN acts a ON a.id=c.act_id
+                WHERE a.title_id=%s ORDER BY c.compilation_dt
+            """, (title_id,))
+            timeline = [dict(zip(["document_id", "compilation_dt", "is_latest", "xml_path"], item)) for item in cur.fetchall()]
+        else:
+            timeline = [{
+                "valid_from": node_data["valid_from"],
+                "valid_to": node_data["valid_to"],
+                "source_url": node_data["source_url"],
+            }]
+        return JSONResponse({"node": node_data, "timeline": timeline})
+    finally:
+        cur.close()
+        conn.close()

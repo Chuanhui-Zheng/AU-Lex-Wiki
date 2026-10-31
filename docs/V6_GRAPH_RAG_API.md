@@ -36,6 +36,18 @@ This endpoint returns only explicitly typed `overrides` or `varies` edges. The
 response is labelled `candidate_only`: an override edge is a review signal,
 not an automatic legal conclusion that two provisions conflict.
 
+## Version timeline
+
+```http
+GET /api/graph/timeline?node=act:C2009A00028
+GET /api/graph/timeline?node=agreement:AE521821
+```
+
+Act nodes return their indexed compilation dates and latest-version flags.
+Decision and agreement nodes return their validity interval and official source
+URL. A timeline is metadata about the indexed corpus, not a claim that an
+instrument applies outside its recorded source dates.
+
 ## Graph-RAG Ask behavior
 
 When `ENABLE_GRAPH_RAG=true`, Ask keeps the strongest direct retrieval results
