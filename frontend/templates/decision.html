@@ -10,6 +10,10 @@
     <div id="decisionNetwork" class="decision-network" aria-label="Decision relationship graph"></div>
     <div id="decisionRelations" class="decision-relations"></div>
   </section>
+  <section class="decision-graph" aria-labelledby="decisionPathHeading">
+    <div class="eyebrow" id="decisionPathHeading">Law-to-decision evidence paths</div>
+    <div id="decisionPaths" class="decision-relations" aria-live="polite">Loading bounded graph paths…</div>
+  </section>
 </div>
 {% endblock %}
 
@@ -62,6 +66,31 @@ fetch(`/api/decision/${encodeURIComponent(decisionId)}`)
       }
       relations.appendChild(item);
     });
+    fetch(`/api/graph/path?start=${encodeURIComponent(`decision:${decision.decision_id}`)}&target_type=section&max_hops=2`)
+      .then(response => response.json())
+      .then(payload => {
+        const panel = document.getElementById('decisionPaths');
+        panel.replaceChildren();
+        const paths = payload.paths || [];
+        if (!paths.length) {
+          panel.textContent = 'No bounded law-to-decision path is indexed for this decision.';
+          return;
+        }
+        paths.slice(0, 6).forEach(path => {
+          const item = document.createElement('article');
+          item.className = 'relation-card';
+          const title = document.createElement('strong');
+          title.textContent = `${path.hops}-hop evidence path`;
+          const trail = document.createElement('p');
+          trail.className = 'decision-meta';
+          trail.textContent = path.nodes.map(node => node.label).join('  →  ');
+          const relations = document.createElement('small');
+          relations.textContent = path.edges.map(edge => edge.relation_type).join('  →  ');
+          item.append(title, trail, relations);
+          panel.appendChild(item);
+        });
+      })
+      .catch(() => { document.getElementById('decisionPaths').textContent = 'Could not load graph paths.'; });
   })
   .catch(error => { document.getElementById('decisionHeader').textContent = `Could not load decision: ${error.message}`; });
 </script>
