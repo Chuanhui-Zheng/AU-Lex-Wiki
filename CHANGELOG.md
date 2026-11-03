@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.6.0 — Graph-RAG foundation
+
+- added a unified temporal graph projection over Acts, sections, decisions and
+  Enterprise Agreements;
+- added bounded path, timeline and candidate-conflict APIs with source URLs;
+- added cross-Act reference resolution and graph-backed Ask expansion;
+- rendered evidence paths on agreement and decision pages;
+- added a direct-versus-multi-hop benchmark and deterministic V6 acceptance suite.
+
 ## v0.5.0 — Enterprise Agreements
 
 - added six official FWC agreement PDFs across six industries;
