@@ -40,7 +40,7 @@ def render(payload: dict) -> str:
     delta = graph["hit_rate"] - direct["hit_rate"]
     return f"""# V6 Graph-RAG evaluation
 
-Generated: `{payload['generated_at']}`  
+Generated: `{payload['generated_at']}`
 Profile: unified PostgreSQL graph projection over Acts, sections, FWC decisions and Enterprise Agreements.
 
 ## Resume-ready comparison

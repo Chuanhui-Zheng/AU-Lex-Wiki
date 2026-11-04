@@ -1,6 +1,6 @@
 # V6 Graph-RAG evaluation
 
-Generated: `2026-11-19T20:29:59Z`  
+Generated: `2026-11-19T20:34:52Z`
 Profile: unified PostgreSQL graph projection over Acts, sections, FWC decisions and Enterprise Agreements.
 
 ## Resume-ready comparison
