@@ -13,6 +13,10 @@
   endpoint.
 - [x] Direct-vs-multi-hop benchmark is recorded in `docs/RAG_EVALUATION_V6.md`.
 
+Final local projection count: **17,179 nodes**, **17,692 edges**, **0 dangling
+nodes**, **0 inverted validity intervals**. The final benchmark reaches **6/6**
+bounded path hits versus **4/6** for the one-hop baseline.
+
 Run deterministic checks with:
 
 ```bash
