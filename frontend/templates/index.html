@@ -234,12 +234,29 @@ function renderLibraryChat(data = null, query = '') {
   form.innerHTML = '<textarea rows="1" placeholder="Ask about this legislation…"></textarea><button type="submit">Ask</button>';
   const textarea = form.querySelector('textarea');
   const submit = form.querySelector('button');
-  let askMode = 'offline';
+  const askModeStorage = 'aulex.ask_mode';
+  function savedAskSettings() {
+    try { return JSON.parse(sessionStorage.getItem('aulex.llm_settings') || '{}'); }
+    catch (_) { return {}; }
+  }
+  let askMode = sessionStorage.getItem(askModeStorage);
+  if (!['offline', 'online'].includes(askMode)) {
+    askMode = savedAskSettings().api_key ? 'online' : 'offline';
+  }
+  const applyLibraryMode = () => {
+    mode.querySelectorAll('[data-library-mode]').forEach(item => {
+      item.classList.toggle('is-active', item.dataset.libraryMode === askMode);
+    });
+    textarea.placeholder = askMode === 'offline'
+      ? 'Search the local indexed provisions…'
+      : 'Ask the model about this legislation…';
+  };
   mode.querySelectorAll('[data-library-mode]').forEach(button => button.addEventListener('click', () => {
     askMode = button.dataset.libraryMode;
-    mode.querySelectorAll('[data-library-mode]').forEach(item => item.classList.toggle('is-active', item === button));
-    textarea.placeholder = askMode === 'offline' ? 'Search the local indexed provisions…' : 'Ask the model about this legislation…';
+    sessionStorage.setItem(askModeStorage, askMode);
+    applyLibraryMode();
   }));
+  applyLibraryMode();
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const question = textarea.value.trim();

@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const dockSubmit = document.getElementById('askDockSubmit');
   const dockResult = document.getElementById('askDockResult');
   const modeLabel = document.getElementById('askModeLabel');
-  let askMode = 'offline';
+  const askModeStorage = 'aulex.ask_mode';
   let dragState = null;
   let dragged = false;
   const settingsStorage = 'aulex.llm_settings';
@@ -66,6 +66,21 @@ document.addEventListener('DOMContentLoaded', () => {
   function settingsPayload() {
     try { return JSON.parse(sessionStorage.getItem(settingsStorage) || '{}'); }
     catch (_) { return {}; }
+  }
+
+  let askMode = sessionStorage.getItem(askModeStorage);
+  if (!['offline', 'online'].includes(askMode)) {
+    askMode = settingsPayload().api_key ? 'online' : 'offline';
+  }
+
+  function syncAskModeControls() {
+    document.querySelectorAll('.mode-option').forEach(item => {
+      item.classList.toggle('is-active', item.dataset.mode === askMode);
+    });
+    if (modeLabel) modeLabel.textContent = askMode === 'offline' ? 'Offline evidence mode' : 'Online model mode';
+    if (dockInput) dockInput.placeholder = askMode === 'offline'
+      ? 'Search the local indexed provisions…'
+      : 'Ask the model about the indexed provisions…';
   }
 
   function setDockOpen(open) {
@@ -125,13 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.mode-option').forEach(button => {
     button.addEventListener('click', () => {
       askMode = button.dataset.mode;
-      document.querySelectorAll('.mode-option').forEach(item => item.classList.toggle('is-active', item === button));
-      modeLabel.textContent = askMode === 'offline' ? 'Offline evidence mode' : 'Online model mode';
-      dockInput.placeholder = askMode === 'offline'
-        ? 'Search the local indexed provisions…'
-        : 'Ask the model about the indexed provisions…';
+      sessionStorage.setItem(askModeStorage, askMode);
+      syncAskModeControls();
     });
   });
+  syncAskModeControls();
 
   function renderDockResult(data) {
     dockResult.replaceChildren();
@@ -215,6 +228,13 @@ document.addEventListener('DOMContentLoaded', () => {
       model: settingsModel.value.trim(),
       base_url: settingsBaseUrl.value.trim(),
     }));
+    // A newly configured browser key makes Online the useful default, while a
+    // deliberate Offline selection remains sticky through later re-renders.
+    if (!sessionStorage.getItem(askModeStorage) && (entered || existing.api_key)) {
+      askMode = 'online';
+      sessionStorage.setItem(askModeStorage, askMode);
+      syncAskModeControls();
+    }
     settingsKey.value = maskedKey;
     settingsKey.readOnly = true;
     settingsStatus.textContent = 'Key saved for this session. It is not stored in the database.';
