@@ -9,7 +9,7 @@ rerun the evaluator after changing the corpus or retrieval code.
 > source hit rate at Recall@5 from **16.7% to 66.7%** (+50.0 pp), MRR@5 from
 > **0.056 to 0.667**, and evidence-term coverage from **41.7% to 91.7%**.
 > The offline refusal gate achieved **100% (8/8)** on the included in-scope and
-> out-of-scope questions, with **14.0 ms median** and **806.4 ms P95** local
+> out-of-scope questions, with **11.4 ms median** and **206.4 ms P95** local
 > retrieval latency.
 
 These are retrieval/evidence metrics, not RAGAS Faithfulness or Answer
