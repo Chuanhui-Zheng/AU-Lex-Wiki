@@ -62,7 +62,7 @@ Set `DATABASE_URL=postgresql://localhost/au_worklaw_atlas` in `.env`. The defaul
 For the normal text-only setup, one command runs the full pipeline:
 
 ```bash
-python -m scripts.ingest_all
+python3 -m scripts.ingest_all
 ```
 
 It applies the schema, fetches configured official sources, parses and ingests
@@ -71,14 +71,14 @@ materializes the V6 graph and runs integrity checks. It stops immediately if a
 stage fails. To reuse already-downloaded source files:
 
 ```bash
-python -m scripts.ingest_all --skip-fetch
+python3 -m scripts.ingest_all --skip-fetch
 ```
 
 The default does not download BGE-M3 or write vectors. Only use this optional
 profile when the embedding model is installed locally:
 
 ```bash
-python -m scripts.ingest_all --with-embeddings
+python3 -m scripts.ingest_all --with-embeddings
 ```
 
 Use `--dry-run` to inspect the stage order without changing files or the
