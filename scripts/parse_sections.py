@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Parse Federal Register XHTML documents into provision chunks for ingestion.
 
