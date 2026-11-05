@@ -158,7 +158,9 @@ function renderSectionPreview(section, returnView) {
 }
 
 function renderLibraryChat(data = null, query = '') {
-  const act = selectedActData?.act;
+  // The workspace Ask action is a corpus-wide query. The selected document is
+  // only a reading surface and must not silently become an act_id filter.
+  const act = null;
   const panel = document.createElement('div');
   panel.className = 'library-chat-panel';
 
