@@ -149,6 +149,10 @@ python -m scripts.evaluate_rag \
 
 The nine-question smoke report remains at `docs/RAG_EVALUATION_V5.md`.
 
+The committed V5 evaluation index is [docs/V5_EVALUATION_INDEX.md](docs/V5_EVALUATION_INDEX.md);
+it links to the full Markdown metrics, resume summary, fixed question set and
+reproduction command.
+
 ## Run
 
 ```bash
