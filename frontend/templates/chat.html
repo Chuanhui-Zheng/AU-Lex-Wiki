@@ -87,6 +87,7 @@ const modelInput = document.getElementById('modelInput');
 const baseUrlInput = document.getElementById('baseUrlInput');
 const baseUrlField = document.getElementById('baseUrlField');
 const settingsStorage = 'aulex.llm_settings';
+const historyStorage = 'aulex.ask_history';
 const maskedKey = '••••••••••••';
 
 // Migrate the first Anthropic-only version of the key panel for the current tab.
@@ -250,6 +251,24 @@ function appendMessage(role, content, sources) {
   window_.scrollTop = window_.scrollHeight;
 }
 
+function loadAskHistory() {
+  try {
+    const history = JSON.parse(sessionStorage.getItem(historyStorage) || '[]');
+    return Array.isArray(history) ? history.slice(-50) : [];
+  } catch (_) { return []; }
+}
+
+function saveAskTurn(query, data) {
+  const history = loadAskHistory();
+  history.push({query, answer: data.answer || data.error || 'No answer returned.', sources: data.sources || []});
+  sessionStorage.setItem(historyStorage, JSON.stringify(history.slice(-50)));
+}
+
+loadAskHistory().forEach(turn => {
+  appendMessage('user', turn.query, null);
+  appendMessage('assistant', turn.answer, turn.sources || []);
+});
+
 async function submitQuestion(query) {
   if (!query) return;
 
@@ -276,6 +295,7 @@ async function submitQuestion(query) {
       body: JSON.stringify(payload),
     });
     const data = await res.json();
+    saveAskTurn(query, data);
     appendMessage('assistant', data.answer || data.error || 'The assistant could not answer this question.', data.sources || []);
   } catch (err) {
     appendMessage('assistant', 'Error: ' + err.message, null);

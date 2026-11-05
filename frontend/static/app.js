@@ -61,11 +61,31 @@ document.addEventListener('DOMContentLoaded', () => {
   let dragState = null;
   let dragged = false;
   const settingsStorage = 'aulex.llm_settings';
+  const historyStorage = 'aulex.ask_history';
   const maskedKey = '••••••••••••';
 
   function settingsPayload() {
     try { return JSON.parse(sessionStorage.getItem(settingsStorage) || '{}'); }
     catch (_) { return {}; }
+  }
+
+  function loadAskHistory() {
+    try {
+      const history = JSON.parse(sessionStorage.getItem(historyStorage) || '[]');
+      return Array.isArray(history) ? history.slice(-50) : [];
+    } catch (_) { return []; }
+  }
+
+  function saveAskTurn(query, data, mode) {
+    const history = loadAskHistory();
+    history.push({
+      query,
+      answer: data.answer || data.error || 'No answer returned.',
+      sources: data.sources || [],
+      mode,
+      at: new Date().toISOString(),
+    });
+    sessionStorage.setItem(historyStorage, JSON.stringify(history.slice(-50)));
   }
 
   let askMode = sessionStorage.getItem(askModeStorage);
@@ -146,34 +166,50 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   syncAskModeControls();
 
-  function renderDockResult(data) {
+  function renderDockHistory() {
     dockResult.replaceChildren();
-    const answer = document.createElement('p');
-    answer.className = 'dock-answer';
-    answer.textContent = data.answer || data.error || 'No answer returned.';
-    dockResult.appendChild(answer);
-    if (data.sources?.length) {
-      const sources = document.createElement('div');
-      sources.className = 'dock-sources';
-      const label = document.createElement('strong');
-      label.textContent = 'Relevant provisions';
-      sources.appendChild(label);
-      data.sources.slice(0, 3).forEach(source => {
-        const link = document.createElement('a');
-        link.href = source.decision_id
-          ? `/decision/${encodeURIComponent(source.decision_id)}`
-          : source.agreement_id
-            ? `/agreement/${encodeURIComponent(source.agreement_id)}`
-            : (source.id ? `/section/${source.id}` : (source.source_url || '#'));
-        const authority = source.authority_level === 'official_guidance'
-          ? 'official guidance'
-          : (source.document_type || 'primary law').replaceAll('_', ' ');
-        link.textContent = `${source.marker} · ${source.act_name} s ${source.section_no} · ${authority}`;
-        sources.appendChild(link);
-      });
-      dockResult.appendChild(sources);
+    const history = loadAskHistory();
+    if (!history.length) {
+      dockResult.innerHTML = '<div class="ask-empty-state">Ask about a provision, definition or cross-reference. Your answer and evidence will appear here.</div>';
+      return;
     }
+    history.forEach(turn => {
+      const item = document.createElement('div');
+      item.className = 'dock-history-turn';
+      const question = document.createElement('div');
+      question.className = 'dock-history-question';
+      question.textContent = turn.query;
+      const answer = document.createElement('p');
+      answer.className = 'dock-answer';
+      answer.textContent = turn.answer;
+      item.append(question, answer);
+      if (turn.sources?.length) {
+        const sources = document.createElement('div');
+        sources.className = 'dock-sources';
+        const label = document.createElement('strong');
+        label.textContent = 'Relevant provisions';
+        sources.appendChild(label);
+        turn.sources.slice(0, 3).forEach(source => {
+          const link = document.createElement('a');
+          link.href = source.decision_id
+            ? `/decision/${encodeURIComponent(source.decision_id)}`
+            : source.agreement_id
+              ? `/agreement/${encodeURIComponent(source.agreement_id)}`
+              : (source.id ? `/section/${source.id}` : (source.source_url || '#'));
+          const authority = source.authority_level === 'official_guidance'
+            ? 'official guidance'
+            : (source.document_type || 'primary law').replaceAll('_', ' ');
+          link.textContent = `${source.marker} · ${source.act_name} s ${source.section_no} · ${authority}`;
+          sources.appendChild(link);
+        });
+        item.appendChild(sources);
+      }
+      dockResult.appendChild(item);
+    });
+    dockResult.scrollTop = dockResult.scrollHeight;
   }
+
+  renderDockHistory();
 
   const settingsModal = document.getElementById('askSettingsModal');
   const settingsProvider = document.getElementById('askProviderInput');
@@ -274,10 +310,13 @@ document.addEventListener('DOMContentLoaded', () => {
     dockSubmit.textContent = '…';
     try {
       const data = await window.aulexSubmitQuestion(query, askMode);
+      saveAskTurn(query, data, askMode);
       if (typeof window.handleLibraryAsk === 'function') window.handleLibraryAsk(data, query);
-      else renderDockResult(data);
+      else renderDockHistory();
     } catch (error) {
-      renderDockResult({answer: 'The Ask service could not be reached.'});
+      const data = {answer: 'The Ask service could not be reached.', sources: []};
+      saveAskTurn(query, data, askMode);
+      renderDockHistory();
     } finally {
       dockSubmit.disabled = false;
       dockSubmit.textContent = 'Ask';

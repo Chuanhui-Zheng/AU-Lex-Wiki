@@ -69,6 +69,12 @@ async def index(request: Request):
     })
 
 
+@app.get("/workspace", response_class=HTMLResponse)
+async def workspace(request: Request):
+    """Full-height query/library workspace, separate from the landing page."""
+    return await index(request)
+
+
 @app.get("/api/act/{act_id}")
 async def act_data(act_id: int):
     """Return an Act summary for the split-pane library view."""

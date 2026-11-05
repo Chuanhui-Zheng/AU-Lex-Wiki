@@ -510,6 +510,37 @@ body { background: var(--bg); color: var(--text); }
 .site-toast { position: fixed; z-index: 240; left: 50%; bottom: 1.25rem; transform: translate(-50%, 120%); padding: .55rem .8rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); box-shadow: var(--shadow); font-size: .78rem; transition: transform .2s ease; }
 .site-toast.is-visible { transform: translate(-50%, 0); }
 
+/* ── Dedicated landing and query surfaces ───────────────────────── */
+html { min-height: 100%; }
+.landing-page, .workspace-page { height: 100%; overflow: hidden; }
+.landing-page .site-header, .workspace-page .site-header { position: fixed; inset: 0 0 auto; }
+.landing-page .layout, .workspace-page .layout {
+  width: 100%; max-width: none; height: calc(100vh - 68px); min-height: 0;
+  margin-top: 68px; padding: 0; overflow: hidden; display: block;
+}
+.landing-page .main-content { height: 100%; display: grid; place-items: center; padding: 2rem; }
+.landing-page .workspace-shell { width: min(1120px, 100%); }
+.landing-page .hero-workspace { max-width: 850px; padding: 0 0 1.25rem; }
+.landing-page .metrics-grid { margin-bottom: 1.15rem; }
+.landing-cta { display: inline-flex; align-items: center; gap: .55rem; padding: .65rem .9rem; border-radius: 8px; background: var(--accent); color: #fff; font-size: .82rem; font-weight: 800; }
+.landing-cta:hover { color: #fff; text-decoration: none; background: var(--accent-hover); }
+.landing-cta span { font-size: 1.1rem; line-height: 1; }
+.workspace-page .main-content { height: 100%; padding: 1.25rem 2rem; }
+.workspace-page .library-workspace { width: 100%; max-width: 1440px; height: 100%; margin: 0 auto; display: flex; flex-direction: column; }
+.workspace-page .library-toolbar { flex: 0 0 auto; margin-top: 0; }
+.workspace-page .library-split { flex: 1 1 auto; min-height: 0; height: auto; align-items: stretch; }
+.workspace-page .library-split .act-list { height: 100%; max-height: none; min-height: 0; overflow-y: auto; }
+.workspace-page .act-preview { height: 100%; min-height: 0; overflow-y: auto; }
+.dock-history-turn { padding: .75rem 0; border-bottom: 1px solid color-mix(in srgb, var(--border) 72%, transparent); }
+.dock-history-turn:first-child { padding-top: 0; }
+.dock-history-question { margin-bottom: .45rem; padding: .45rem .6rem; border-radius: 9px 9px 3px 9px; background: var(--accent); color: #fff; font-size: .78rem; }
+.dock-history-turn .dock-answer { color: var(--text); }
+.chat-window .chat-msg + .chat-msg { scroll-margin-top: 1rem; }
+
+/* Ask history is an internal scroll surface; the document itself stays fixed. */
+.chat-page .layout { min-height: 0; }
+.chat-page .chat-window { overflow-y: auto; }
+
 /* DeepWiki-style Relevant source files rail */
 .relevant-source-block { padding-bottom: 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1.2rem; }
 .relevant-source-block h4 { color: var(--text); }

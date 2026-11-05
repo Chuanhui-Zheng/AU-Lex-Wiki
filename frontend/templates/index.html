@@ -1,7 +1,8 @@
 {% extends "base.html" %}
-{% block title %}AU-WorkLaw-Atlas — Australian workplace law{% endblock %}
+{% block title %}{% if request.url.path == '/' %}AU-WorkLaw-Atlas — Australian workplace law{% else %}Query workspace — AU-WorkLaw-Atlas{% endif %}{% endblock %}
 
 {% block content %}
+{% if request.url.path == '/' %}
 <div class="workspace-shell">
   <section class="hero hero-workspace">
     <div class="eyebrow"><span class="status-dot"></span> Australian workplace law workspace</div>
@@ -27,7 +28,9 @@
     <a class="metric-card metric-card-link" href="/decisions"><span class="metric-label">FWC decisions</span><strong>{{ decision_count }}</strong><span class="metric-note">curated interpretation layer</span></a>
     <a class="metric-card metric-card-link" href="/agreements"><span class="metric-label">Agreements</span><strong>{{ agreement_count }}</strong><span class="metric-note">selected industry instruments</span></a>
   </section>
+  <a class="landing-cta" href="/workspace">Open the query workspace <span aria-hidden="true">→</span></a>
 </div>
+{% else %}
 
 <section class="library-workspace">
   <div class="library-toolbar">
@@ -54,6 +57,7 @@
     </section>
   </div>
 </section>
+{% endif %}
 
 {% endblock %}
 
@@ -184,47 +188,55 @@ function renderLibraryChat(data = null, query = '') {
 
   const answerWindow = document.createElement('div');
   answerWindow.className = 'library-chat-answer';
-  if (data) {
-    if (query) {
+  let history = [];
+  try { history = JSON.parse(sessionStorage.getItem('aulex.ask_history') || '[]'); }
+  catch (_) { history = []; }
+  if (data && query && (!history.length || history[history.length - 1].query !== query)) {
+    history = [...history, {query, answer: data.answer || data.error || 'No answer returned.', sources: data.sources || []}];
+  }
+  if (history.length) {
+    history.slice(-50).forEach(turn => {
       const question = document.createElement('div');
       question.className = 'preview-chat-question';
       question.innerHTML = '<span>YOU</span><p></p>';
-      question.querySelector('p').textContent = query;
+      question.querySelector('p').textContent = turn.query;
       answerWindow.appendChild(question);
-    }
-    const answer = document.createElement('article');
-    answer.className = 'preview-chat-answer';
-    const label = document.createElement('div');
-    label.className = 'eyebrow';
-    label.textContent = 'WORKLAW ATLAS ASSISTANT';
-    const copy = document.createElement('p');
-    copy.className = 'preview-chat-copy';
-    copy.textContent = data.answer || data.error || 'No answer returned.';
-    answer.append(label, copy);
-    if (data.sources?.length) {
-      const sources = document.createElement('div');
-      sources.className = 'preview-chat-sources';
-      const sourceLabel = document.createElement('strong');
-      sourceLabel.textContent = 'Evidence';
-      sources.appendChild(sourceLabel);
-      data.sources.forEach(source => {
-        const link = document.createElement('a');
-        link.href = source.id ? '#section-preview' : (source.source_url || '#');
-        link.textContent = `${source.marker || 'Source'} · ${source.act_name} s ${source.section_no}`;
-        if (source.id) {
-          link.addEventListener('click', event => {
-            event.preventDefault();
-            loadSectionPreview(source.id, () => renderLibraryChat(data, query));
-          });
-        } else {
-          link.target = '_blank';
-          link.rel = 'noopener';
-        }
-        sources.appendChild(link);
-      });
-      answer.appendChild(sources);
-    }
-    answerWindow.appendChild(answer);
+
+      const answer = document.createElement('article');
+      answer.className = 'preview-chat-answer';
+      const label = document.createElement('div');
+      label.className = 'eyebrow';
+      label.textContent = 'WORKLAW ATLAS ASSISTANT';
+      const copy = document.createElement('p');
+      copy.className = 'preview-chat-copy';
+      copy.textContent = turn.answer;
+      answer.append(label, copy);
+      if (turn.sources?.length) {
+        const sources = document.createElement('div');
+        sources.className = 'preview-chat-sources';
+        const sourceLabel = document.createElement('strong');
+        sourceLabel.textContent = 'Evidence';
+        sources.appendChild(sourceLabel);
+        turn.sources.forEach(source => {
+          const link = document.createElement('a');
+          link.href = source.id ? '#section-preview' : (source.source_url || '#');
+          link.textContent = `${source.marker || 'Source'} · ${source.act_name} s ${source.section_no}`;
+          if (source.id) {
+            link.addEventListener('click', event => {
+              event.preventDefault();
+              loadSectionPreview(source.id, () => renderLibraryChat(data, query));
+            });
+          } else {
+            link.target = '_blank';
+            link.rel = 'noopener';
+          }
+          sources.appendChild(link);
+        });
+        answer.appendChild(sources);
+      }
+      answerWindow.appendChild(answer);
+    });
+    answerWindow.scrollTop = answerWindow.scrollHeight;
   } else {
     answerWindow.innerHTML = '<div class="ask-empty-state">Ask a question about the selected Act. The answer and evidence will stay in this panel.</div>';
   }

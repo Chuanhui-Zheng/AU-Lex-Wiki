@@ -15,6 +15,22 @@ from config import config
 _client: anthropic.Anthropic | None = None
 
 REFUSAL = "The indexed workplace-law sources do not address this question."
+GREETING_RESPONSE = (
+    "你好！我是 AU-WorkLaw-Atlas，可以用自然语言帮你检索和解释已收录的澳大利亚劳动法资料。\n\n"
+    "你可以直接问，例如：\n"
+    "- Fair Work Act s 18 定义了什么？\n"
+    "- 餐饮行业的最低工资和加班规则是什么？\n"
+    "- 某个 Enterprise Agreement 是否覆盖某类员工？"
+)
+
+
+def is_greeting(query: str) -> bool:
+    """Handle lightweight conversation without forcing it through legal retrieval."""
+    normalized = re.sub(r"[\s\u3000，。！？!?、,.~～]+", "", query.lower())
+    return normalized in {
+        "hi", "hello", "hey", "hithere", "hellothere", "你好", "您好", "嗨", "哈喽",
+        "早上好", "下午好", "晚上好", "你好吗", "你是谁", "你能做什么",
+    }
 
 
 def requires_safety_refusal(query: str) -> bool:
@@ -214,6 +230,14 @@ def answer(
         return {"answer": REFUSAL, "sources": [], "refused": True, "reason": "empty_query"}
     if len(query) > 2000:
         return {"answer": REFUSAL, "sources": [], "refused": True, "reason": "query_too_long"}
+    if is_greeting(query):
+        return {
+            "answer": GREETING_RESPONSE,
+            "sources": [],
+            "refused": False,
+            "reason": "conversation_greeting",
+            "grounding": "assistant_capability",
+        }
     if requires_safety_refusal(query):
         return {
             "answer": REFUSAL,

@@ -6,7 +6,7 @@
   <title>{% block title %}AU-WorkLaw-Atlas{% endblock %}</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="{% if request.url.path == '/chat' %}chat-page{% endif %}">
+<body class="{% if request.url.path == '/chat' %}chat-page {% endif %}{% if request.url.path == '/' %}landing-page{% elif request.url.path == '/workspace' %}workspace-page{% endif %}">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="header-inner">
@@ -21,7 +21,7 @@
         <kbd>/</kbd>
       </form>
       <nav class="header-nav">
-        <a href="/">Library</a>
+        <a href="/workspace">Query workspace</a>
         <a href="/decisions">FWC decisions</a>
         <a href="/agreements">Agreements</a>
         <a href="/chat" class="nav-ask" id="askToggle">Ask the corpus</a>
