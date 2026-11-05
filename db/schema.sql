@@ -102,6 +102,41 @@ CREATE TABLE IF NOT EXISTS entities (
     confidence      float DEFAULT 1.0
 );
 
+-- ─────────────────────────────────────────────
+-- Fair Work Commission decisions and graph edges
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS decisions (
+    id              bigserial PRIMARY KEY,
+    decision_id     text UNIQUE NOT NULL,
+    act_id          bigint NOT NULL REFERENCES acts(id) ON DELETE CASCADE,
+    case_name       text NOT NULL,
+    citation        text NOT NULL,
+    decision_date   date,
+    category        text NOT NULL,
+    authority_level text DEFAULT 'decision',
+    source_url      text NOT NULL,
+    fetched_at      timestamptz DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_decisions_category ON decisions(category);
+CREATE INDEX IF NOT EXISTS idx_decisions_date ON decisions(decision_date);
+
+CREATE TABLE IF NOT EXISTS decision_refs (
+    id                       bigserial PRIMARY KEY,
+    decision_id              bigint NOT NULL REFERENCES decisions(id) ON DELETE CASCADE,
+    relation_type            text NOT NULL CHECK (relation_type IN ('cites','interprets','concerns')),
+    target_act_id            bigint REFERENCES acts(id) ON DELETE SET NULL,
+    target_section_no        text,
+    target_award_id          bigint REFERENCES acts(id) ON DELETE SET NULL,
+    target_clause            text,
+    target_enterprise_agreement text,
+    evidence                 text
+);
+
+CREATE INDEX IF NOT EXISTS idx_decision_refs_decision ON decision_refs(decision_id);
+CREATE INDEX IF NOT EXISTS idx_decision_refs_act ON decision_refs(target_act_id);
+CREATE INDEX IF NOT EXISTS idx_decision_refs_award ON decision_refs(target_award_id);
+
 CREATE INDEX IF NOT EXISTS idx_entities_section ON entities(section_id);
 CREATE INDEX IF NOT EXISTS idx_entities_type    ON entities(entity_type);
 CREATE INDEX IF NOT EXISTS idx_entities_term    ON entities USING gin(to_tsvector('english', coalesce(term,'')));

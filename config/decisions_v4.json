@@ -1,0 +1,70 @@
+[
+  {
+    "id": "2025-fwcfb-3500",
+    "case_name": "Annual Wage Review 2025",
+    "citation": "[2025] FWCFB 3500",
+    "decision_date": "2025-06-03",
+    "category": "annual_wage_review",
+    "url": "https://www.fwc.gov.au/documents/resources/2025fwcfb3500.pdf",
+    "relations": [
+      {"type": "cites", "target_title": "Fair Work Act 2009", "sections": ["285"]}
+    ]
+  },
+  {
+    "id": "2024-fwcfb-3500",
+    "case_name": "Annual Wage Review 2023-24",
+    "citation": "[2024] FWCFB 3500",
+    "decision_date": "2024-06-03",
+    "category": "annual_wage_review",
+    "url": "https://web-prd.fwc.gov.au/documents/decisionssigned/pdf/2024fwcfb3500.pdf",
+    "relations": [
+      {"type": "cites", "target_title": "Fair Work Act 2009", "sections": ["285"]}
+    ]
+  },
+  {
+    "id": "2024-fwc-2383",
+    "case_name": "Angela Green v BHP Pty Ltd & Ors",
+    "citation": "[2024] FWC 2383",
+    "decision_date": "2024-09-03",
+    "category": "general_protections",
+    "url": "https://www.fwc.gov.au/documents/decisionssigned/pdf/2024fwc2383.pdf",
+    "relations": [
+      {"type": "cites", "target_title": "Fair Work Act 2009", "sections": ["365", "725"]}
+    ]
+  },
+  {
+    "id": "2024-fwcfb-458",
+    "case_name": "Gold Tiger Logistics Qld Pty Ltd v Audrey Campbell",
+    "citation": "[2024] FWCFB 458",
+    "decision_date": "2024-12-11",
+    "category": "unfair_dismissal",
+    "url": "https://www.fwc.gov.au/documents/decisionssigned/pdf/2024fwcfb458.pdf",
+    "relations": [
+      {"type": "cites", "target_title": "Fair Work Act 2009", "sections": ["385", "387", "394", "604"]}
+    ]
+  },
+  {
+    "id": "2014-fwcfb-3202",
+    "case_name": "Canavan Building Pty Ltd Enterprise Agreement 2013",
+    "citation": "[2014] FWCFB 3202",
+    "decision_date": "2014-05-29",
+    "category": "enterprise_agreement_approval",
+    "url": "https://www.fwc.gov.au/documents/decisionssigned/html/2014fwcfb3202.htm",
+    "relations": [
+      {"type": "cites", "target_title": "Fair Work Act 2009", "sections": ["55", "185", "186"]},
+      {"type": "concerns", "target_enterprise_agreement": "Canavan Building Pty Ltd Enterprise Agreement 2013"}
+    ]
+  },
+  {
+    "id": "2025-fwcfb-103",
+    "case_name": "Appeal against an enterprise agreement approval decision",
+    "citation": "[2025] FWCFB 103",
+    "decision_date": "2025-03-05",
+    "category": "enterprise_agreement_approval",
+    "url": "https://www.fwc.gov.au/documents/decisionssigned/pdf/2025fwcfb103.pdf",
+    "relations": [
+      {"type": "cites", "target_title": "Fair Work Act 2009", "sections": ["186", "193"]},
+      {"type": "concerns", "target_enterprise_agreement": "enterprise agreement approval appeal"}
+    ]
+  }
+]
