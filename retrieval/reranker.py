@@ -1,15 +1,19 @@
+from __future__ import annotations
+
 """
 BGE Reranker cross-encoder: re-scores top-k candidates from hybrid search.
 """
-from FlagEmbedding import FlagReranker
+from typing import Any, Optional
 from config import config
 
-_reranker: FlagReranker | None = None
+_reranker: Optional[Any] = None
 
 
-def get_reranker() -> FlagReranker:
+def get_reranker() -> Any:
     global _reranker
     if _reranker is None:
+        # Import only when local embedding/reranking mode is enabled.
+        from FlagEmbedding import FlagReranker
         _reranker = FlagReranker(config.reranker_model, use_fp16=True)
     return _reranker
 
