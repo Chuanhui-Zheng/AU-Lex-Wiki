@@ -248,6 +248,20 @@ function renderLibraryChat(data = null, query = '') {
   form.innerHTML = '<textarea rows="1" placeholder="Ask about this legislation…"></textarea><button type="submit">Ask</button>';
   const textarea = form.querySelector('textarea');
   const submit = form.querySelector('button');
+  function saveLibraryTurn(question, result) {
+    let turns = [];
+    try { turns = JSON.parse(sessionStorage.getItem('aulex.ask_history') || '[]'); }
+    catch (_) { turns = []; }
+    if (!Array.isArray(turns)) turns = [];
+    turns.push({
+      query: question,
+      answer: result.answer || result.error || 'No answer returned.',
+      sources: result.sources || [],
+      mode: askMode,
+      at: new Date().toISOString(),
+    });
+    sessionStorage.setItem('aulex.ask_history', JSON.stringify(turns.slice(-50)));
+  }
   const askModeStorage = 'aulex.ask_mode';
   function savedAskSettings() {
     try { return JSON.parse(sessionStorage.getItem('aulex.llm_settings') || '{}'); }
@@ -279,6 +293,7 @@ function renderLibraryChat(data = null, query = '') {
     submit.textContent = '…';
     try {
       const result = await window.aulexSubmitQuestion(question, askMode, act?.id || null);
+      saveLibraryTurn(question, result);
       renderLibraryChat(result, question);
     } catch (_) {
       renderLibraryChat({answer: 'The Ask service could not be reached.'}, question);

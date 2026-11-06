@@ -531,6 +531,19 @@ html { min-height: 100%; }
 .workspace-page .library-split { flex: 1 1 auto; min-height: 0; height: auto; align-items: stretch; }
 .workspace-page .library-split .act-list { height: 100%; max-height: none; min-height: 0; overflow-y: auto; }
 .workspace-page .act-preview { height: 100%; min-height: 0; overflow-y: auto; }
+.workspace-page .act-preview:has(.library-chat-panel) { display: flex; overflow: hidden; }
+.workspace-page .library-chat-panel { width: 100%; height: 100%; min-height: 0; overflow: hidden; }
+.workspace-page .library-chat-header { flex: 0 0 auto; position: relative; z-index: 2; background: var(--surface); padding-bottom: .85rem; border-bottom: 1px solid var(--border); }
+.workspace-page .library-chat-answer { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.workspace-page .library-chat-form { position: relative; z-index: 2; background: var(--surface); padding-bottom: .15rem; }
+.chat-page .layout { height: calc(100vh - 68px); overflow: hidden; }
+.chat-page .main-content { height: 100%; min-height: 0; }
+.chat-page .chat-layout { height: 100%; min-height: 0; }
+.chat-page .chat-container, .chat-page .chat-sidebar { min-height: 0; }
+.chat-page .chat-container { display: flex; flex-direction: column; }
+.chat-page .chat-window { flex: 1 1 auto; min-height: 0; max-height: none; overflow-y: auto; }
+.chat-page .chat-form { flex: 0 0 auto; }
+.chat-page .chat-sidebar { height: 100%; overflow-y: auto; }
 .dock-history-turn { padding: .75rem 0; border-bottom: 1px solid color-mix(in srgb, var(--border) 72%, transparent); }
 .dock-history-turn:first-child { padding-top: 0; }
 .dock-history-question { margin-bottom: .45rem; padding: .45rem .6rem; border-radius: 9px 9px 3px 9px; background: var(--accent); color: #fff; font-size: .78rem; }
