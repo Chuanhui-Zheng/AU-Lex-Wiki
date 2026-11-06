@@ -249,6 +249,7 @@ function renderLibraryChat(data = null, query = '') {
   const textarea = form.querySelector('textarea');
   const submit = form.querySelector('button');
   function saveLibraryTurn(question, result) {
+    if (sessionStorage.getItem('aulex.ask_memory') === 'false') return;
     let turns = [];
     try { turns = JSON.parse(sessionStorage.getItem('aulex.ask_history') || '[]'); }
     catch (_) { turns = []; }
@@ -310,6 +311,7 @@ function renderPlaceholder() {
 
 window.openLibraryAsk = () => renderLibraryChat();
 window.handleLibraryAsk = (data, query) => renderLibraryChat(data, query);
+window.handleLibraryAskClear = () => renderLibraryChat();
 
 actList?.querySelectorAll('[data-act-id]').forEach(card => {
   card.addEventListener('click', async event => {

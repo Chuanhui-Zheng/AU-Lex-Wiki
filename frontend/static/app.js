@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let dragged = false;
   const settingsStorage = 'aulex.llm_settings';
   const historyStorage = 'aulex.ask_history';
+  const memoryStorage = 'aulex.ask_memory';
   const maskedKey = '••••••••••••';
 
   function settingsPayload() {
@@ -76,7 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (_) { return []; }
   }
 
+  function memoryEnabled() {
+    return sessionStorage.getItem(memoryStorage) !== 'false';
+  }
+
   function saveAskTurn(query, data, mode) {
+    if (!memoryEnabled()) return;
     const history = loadAskHistory();
     history.push({
       query,
@@ -217,6 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingsModel = document.getElementById('askModelInput');
   const settingsBaseUrl = document.getElementById('askBaseUrlInput');
   const settingsBaseField = document.getElementById('askBaseUrlField');
+  const settingsMemory = document.getElementById('askMemoryInput');
   const settingsStatus = document.getElementById('askSettingsStatus');
 
   function updateSettingsFields() {
@@ -239,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
     settingsBaseUrl.value = settings.base_url || 'https://openrouter.ai/api/v1';
     settingsKey.value = settings.api_key ? maskedKey : '';
     settingsKey.readOnly = Boolean(settings.api_key);
+    if (settingsMemory) settingsMemory.checked = memoryEnabled();
     updateSettingsFields();
     settingsStatus.textContent = settings.api_key ? 'Key saved for this session. It is not stored in the database.' : 'No browser key set. You can also configure a server-side key.';
     settingsStatus.classList.toggle('is-active', Boolean(settings.api_key));
@@ -264,6 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
       model: settingsModel.value.trim(),
       base_url: settingsBaseUrl.value.trim(),
     }));
+    sessionStorage.setItem(memoryStorage, settingsMemory?.checked === false ? 'false' : 'true');
     // A newly configured browser key makes Online the useful default, while a
     // deliberate Offline selection remains sticky through later re-renders.
     if (!sessionStorage.getItem(askModeStorage) && (entered || existing.api_key)) {
@@ -283,6 +292,11 @@ document.addEventListener('DOMContentLoaded', () => {
     settingsStatus.textContent = 'No browser key set. You can also configure a server-side key.';
     settingsStatus.classList.remove('is-active');
   });
+  document.getElementById('askClearMemory')?.addEventListener('click', () => {
+    sessionStorage.removeItem(historyStorage);
+    renderDockHistory();
+    if (typeof window.handleLibraryAskClear === 'function') window.handleLibraryAskClear();
+  });
 
   window.aulexSubmitQuestion = async (query, mode = 'offline', actId = null) => {
     const settings = settingsPayload();
@@ -297,6 +311,10 @@ document.addEventListener('DOMContentLoaded', () => {
           provider: settings.provider || undefined,
           model: settings.model || undefined,
           base_url: settings.base_url || undefined,
+          history: memoryEnabled() ? loadAskHistory().slice(-8).map(turn => ({
+            query: turn.query,
+            answer: turn.answer,
+          })) : [],
         }),
       });
     return response.json();

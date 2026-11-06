@@ -76,7 +76,8 @@
       <label>API key<input id="askApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="Provider API key"></label>
       <label>Model<input id="askModelInput" type="text" autocomplete="off"></label>
       <label id="askBaseUrlField">Base URL<input id="askBaseUrlInput" type="url" autocomplete="off"></label>
-      <div class="ask-settings-actions"><button type="button" class="api-key-clear" id="askClearSettings">Clear</button><button type="button" id="askSaveSettings">Save for this session</button></div>
+      <label class="ask-memory-toggle"><input id="askMemoryInput" type="checkbox"> Use conversation memory for this browser session</label>
+      <div class="ask-settings-actions"><button type="button" class="api-key-clear" id="askClearSettings">Clear key</button><button type="button" class="api-memory-clear" id="askClearMemory">Clear memory</button><button type="button" id="askSaveSettings">Save for this session</button></div>
       <p class="api-key-status" id="askSettingsStatus">No browser key set. You can also configure a server-side key.</p>
     </section>
   </div>

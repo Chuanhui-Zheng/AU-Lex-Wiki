@@ -22,7 +22,7 @@ except Exception:
 
 def answer(question: str, conn=None, act_id: int | None = None, api_key: str | None = None,
            provider: str | None = None, model: str | None = None, base_url: str | None = None,
-           mode: str = "online"):
+           mode: str = "online", history: list[dict] | None = None):
     if not _rag_available:
         return {
             "answer": "The research assistant is unavailable because the local retrieval model is not installed.",
@@ -31,7 +31,8 @@ def answer(question: str, conn=None, act_id: int | None = None, api_key: str | N
             "reason": "retrieval_unavailable",
         }
     return _answer(question, conn=conn, act_id=act_id, api_key=api_key,
-                   provider=provider, model=model, base_url=base_url, mode=mode)
+                   provider=provider, model=model, base_url=base_url, mode=mode,
+                   history=history)
 
 app = FastAPI(title="AU-WorkLaw-Atlas")
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
@@ -273,16 +274,27 @@ async def chat(request: Request):
     provider = body.get("provider") or None
     model = body.get("model") or None
     base_url = body.get("base_url") or None
+    history = body.get("history") or []
     mode = body.get("mode") or "online"
     if mode not in {"offline", "online"}:
         return JSONResponse({"error": "mode must be offline or online"}, status_code=400)
     for field_name, value, max_len in (("provider", provider, 40), ("model", model, 160), ("base_url", base_url, 500)):
         if value is not None and (not isinstance(value, str) or len(value) > max_len):
             return JSONResponse({"error": f"{field_name} is invalid"}, status_code=400)
+    if not isinstance(history, list):
+        return JSONResponse({"error": "history must be a list"}, status_code=400)
+    history = [
+        {"query": item.get("query", "")[:1000], "answer": item.get("answer", "")[:3000]}
+        for item in history[-8:]
+        if isinstance(item, dict)
+        and isinstance(item.get("query", ""), str)
+        and isinstance(item.get("answer", ""), str)
+    ]
     conn = get_conn()
     try:
         result = answer(query, conn=conn, act_id=act_id, api_key=api_key,
-                        provider=provider, model=model, base_url=base_url, mode=mode)
+                        provider=provider, model=model, base_url=base_url, mode=mode,
+                        history=history)
     finally:
         conn.close()
     return JSONResponse(result)

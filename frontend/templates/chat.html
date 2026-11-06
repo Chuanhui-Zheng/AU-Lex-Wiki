@@ -88,6 +88,7 @@ const baseUrlInput = document.getElementById('baseUrlInput');
 const baseUrlField = document.getElementById('baseUrlField');
 const settingsStorage = 'aulex.llm_settings';
 const historyStorage = 'aulex.ask_history';
+const memoryStorage = 'aulex.ask_memory';
 const maskedKey = '••••••••••••';
 
 // Migrate the first Anthropic-only version of the key panel for the current tab.
@@ -258,7 +259,12 @@ function loadAskHistory() {
   } catch (_) { return []; }
 }
 
+function memoryEnabled() {
+  return sessionStorage.getItem(memoryStorage) !== 'false';
+}
+
 function saveAskTurn(query, data) {
+  if (!memoryEnabled()) return;
   const history = loadAskHistory();
   history.push({query, answer: data.answer || data.error || 'No answer returned.', sources: data.sources || []});
   sessionStorage.setItem(historyStorage, JSON.stringify(history.slice(-50)));
@@ -287,6 +293,10 @@ async function submitQuestion(query) {
       provider: providerSelect.value,
       model: modelInput.value.trim(),
       base_url: baseUrlInput.value.trim(),
+      history: memoryEnabled() ? loadAskHistory().slice(-8).map(turn => ({
+        query: turn.query,
+        answer: turn.answer,
+      })) : [],
     };
     if (actId) payload.act_id = actId;
     const res = await fetch('/api/chat', {
