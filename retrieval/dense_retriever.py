@@ -58,7 +58,8 @@ def dense_search(
 
     sql = f"""
         SELECT s.id, s.section_no, s.section_heading, s.body,
-               a.name AS act_name, c.compilation_dt::text,
+               a.name AS act_name, a.document_type, a.authority_level,
+               c.compilation_dt::text,
                s.source_url,
                1 - (s.embedding <=> %s) AS score
         FROM sections s
@@ -70,7 +71,7 @@ def dense_search(
     """
     cur.execute(sql, params)
     cols = ["id","section_no","section_heading","body","act_name",
-            "compilation_dt","source_url","score"]
+            "document_type","authority_level","compilation_dt","source_url","score"]
     results = [dict(zip(cols, row)) for row in cur.fetchall()]
     cur.close()
     return results
