@@ -34,9 +34,15 @@ vectors remain an optional upgrade and are not required for the V2 corpus.
 
 ## V3 — Official explanations
 
-- Fair Work Ombudsman workplace guides and fact sheets;
-- source type and authority-level labels;
-- links from a legal provision to the official explanation that discusses it.
+- Fair Work Ombudsman Workplace Guides, including the Fair Work Handbook;
+- Fact Sheets and Best Practice Guides published on the official FWO site;
+- independent guidance documents with `authority_level=official_guidance`;
+- evidence responses that expose whether a source is primary law, an Award,
+  a Pay Guide or official guidance.
+
+V3 does not promote an FWO explanation to the status of legislation. It is
+retrieved to explain practical conditions, while the answer continues to show
+the underlying source URL and authority label.
 
 ## V4 — Decisions
 
