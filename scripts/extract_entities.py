@@ -83,8 +83,18 @@ def extract_structural(section: dict) -> dict:
     return {"xrefs": xrefs, "entities": entities}
 
 
-def ingest_to_db(conn):
+def ingest_to_db(conn, reset_derived: bool = False):
     cur = conn.cursor()
+
+    if reset_derived:
+        # section_refs and entities are deterministic projections of the raw
+        # chunks. Rebuilding them prevents repeated ingestion from accumulating
+        # rows whose target_section_id was resolved differently on an earlier
+        # run.
+        cur.execute("DELETE FROM section_refs")
+        cur.execute("DELETE FROM entities")
+        conn.commit()
+        print("Cleared derived section_refs and entities for a deterministic rebuild.")
 
     # load all section rows into memory for fast lookup by (act_name, section_no)
     cur.execute("SELECT id, act_id, section_no, compilation_id FROM sections")
@@ -165,11 +175,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--semantic", action="store_true",
                         help="Also run Claude API for semantic entity extraction")
+    parser.add_argument("--reset-derived", action="store_true",
+                        help="Rebuild structural references and entities from chunks")
     args = parser.parse_args()
 
     conn = psycopg2.connect(config.db_url)
     print("Extracting structural entities and cross-references...")
-    ingest_to_db(conn)
+    ingest_to_db(conn, reset_derived=args.reset_derived)
     conn.close()
 
     if args.semantic:
