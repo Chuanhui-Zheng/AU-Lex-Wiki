@@ -13,10 +13,24 @@ Ask, and clause-level reference extraction.
 
 ## V2 — Awards and pay conditions
 
-- current Modern Awards from Fair Work Commission document search;
-- award variation history and historical versions;
-- Fair Work Ombudsman pay guides;
-- award clause, classification, allowance and penalty-rate relations.
+- 122 current Modern Awards from the Fair Work Ombudsman catalogue;
+- Award HTML clauses, tables and variation-history blocks from the official
+  Fair Work Commission award publication;
+- 121 available Fair Work Ombudsman Pay Guide DOCX files, parsed without a
+  third-party office suite;
+- separate `award` and `pay_guide` nodes with authority-level metadata;
+- section/clause retrieval with title-aware PostgreSQL full-text ranking;
+- offline evidence answers and refusal for questions outside workplace-law
+  terminology.
+
+The V2 graph boundary is now explicit:
+
+```text
+Fair Work Act / Regulations -> Modern Award -> Award clause -> Pay Guide
+```
+
+The current ingestion remains text-only by default. BGE-M3 dense and sparse
+vectors remain an optional upgrade and are not required for the V2 corpus.
 
 ## V3 — Official explanations
 
