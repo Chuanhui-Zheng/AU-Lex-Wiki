@@ -17,6 +17,19 @@ _client: anthropic.Anthropic | None = None
 REFUSAL = "The indexed workplace-law sources do not address this question."
 
 
+def requires_safety_refusal(query: str) -> bool:
+    """Reject prediction/litigation requests that cannot be grounded in text."""
+    lowered = query.lower()
+    patterns = (
+        r"\bshould\s+i\s+sue\b",
+        r"\bwill\s+.+\b(be\s+)?found\s+liable\b",
+        r"\bguarantee\b.+\b(court|tribunal|claim|case)\b",
+        r"\bwhat\s+should\s+i\s+do\b.+\b(employer|employee|workplace)\b",
+        r"\b(predict|prediction)\b.+\b(court|employer|case|claim)\b",
+    )
+    return any(re.search(pattern, lowered) for pattern in patterns)
+
+
 def get_client(api_key: str | None = None) -> anthropic.Anthropic:
     # Browser-provided keys are intentionally not cached or persisted. The
     # default server key may be reused for the lifetime of this process.
@@ -201,6 +214,13 @@ def answer(
         return {"answer": REFUSAL, "sources": [], "refused": True, "reason": "empty_query"}
     if len(query) > 2000:
         return {"answer": REFUSAL, "sources": [], "refused": True, "reason": "query_too_long"}
+    if requires_safety_refusal(query):
+        return {
+            "answer": REFUSAL,
+            "sources": [],
+            "refused": True,
+            "reason": "safety_refusal_prediction_or_litigation",
+        }
 
     close_conn = False
     if conn is None:
