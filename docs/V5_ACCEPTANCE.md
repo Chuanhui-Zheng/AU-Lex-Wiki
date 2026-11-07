@@ -10,7 +10,11 @@
 - [x] Agreement pages and APIs expose source-linked metadata and graph edges.
 - [x] Agreement questions retrieve agreement evidence in offline Ask mode.
 - [x] Out-of-scope questions remain refused.
-- [x] V5 benchmark reports Recall@5, MRR@5, evidence coverage, refusal and latency.
+- [x] Expanded V5 benchmark contains 79 unique questions across six source
+  buckets and 20 refusal cases.
+- [x] V5 benchmark reports Recall@1/3/5/10, MRR@10, nDCG@5, evidence coverage,
+  Wilson intervals, paired bootstrap CI, McNemar significance, refusal and
+  repeated latency.
 - [x] BGE-M3 dense and sparse vectors remain empty in the default profile.
 
 Run the acceptance suite with one command:
@@ -26,7 +30,11 @@ and latency sample:
 
 ```bash
 python -m scripts.evaluate_rag \
-  --questions config/eval_questions_v5.json \
-  --report docs/RAG_EVALUATION_V5.md \
-  --json-report output/rag_evaluation_v5.json
+  --questions config/eval_questions_v5_large.json \
+  --report docs/RAG_EVALUATION_V5_LARGE.md \
+  --json-report output/rag_evaluation_v5_large.json
 ```
+
+The original nine-question smoke report remains at
+`docs/RAG_EVALUATION_V5.md`; use `docs/RAG_EVALUATION_V5_LARGE.md` for the
+resume/release metric.

@@ -9,6 +9,7 @@ CHECKS = (
     "scripts.check_agreements",
     "scripts.check_agreement_data",
     "scripts.check_v5_counts",
+    "scripts.check_eval_set_v5_large",
     "scripts.check_v5_api_contract",
     "scripts.smoke_v5",
 )

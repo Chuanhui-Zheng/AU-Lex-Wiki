@@ -123,10 +123,12 @@ python -m scripts.evaluate_rag \
   --json-report output/rag_evaluation_v4.json
 ```
 
-The report compares simple PostgreSQL FTS with the optimized title-aware
-retriever using Recall@5/source hit rate, MRR@5, evidence-term coverage,
-refusal accuracy and local latency. It does not label these proxies as RAGAS
-Faithfulness or Answer Correctness.
+The default report compares simple PostgreSQL FTS with the optimized
+title-aware retriever on the 79-question V5 set using Recall@1/3/5/10, MRR@10,
+nDCG@5, evidence-term coverage, stratified Wilson intervals, paired bootstrap
+confidence intervals, exact McNemar significance, refusal accuracy and
+repeated local latency. It does not label these proxies as RAGAS Faithfulness
+or Answer Correctness.
 
 The V4 decision layer is browsable at `/decisions`; each decision page shows
 the official source link and its explicit Act, Award and agreement graph edges.
@@ -139,10 +141,12 @@ when that decision is in the indexed FWC set. Reproduce the V5 benchmark with:
 
 ```bash
 python -m scripts.evaluate_rag \
-  --questions config/eval_questions_v5.json \
-  --report docs/RAG_EVALUATION_V5.md \
-  --json-report output/rag_evaluation_v5.json
+  --questions config/eval_questions_v5_large.json \
+  --report docs/RAG_EVALUATION_V5_LARGE.md \
+  --json-report output/rag_evaluation_v5_large.json
 ```
+
+The nine-question smoke report remains at `docs/RAG_EVALUATION_V5.md`.
 
 ## Run
 
