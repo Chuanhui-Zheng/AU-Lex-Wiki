@@ -16,12 +16,13 @@ from tqdm import tqdm
 
 from config import config
 
-AWARDS_INDEX = "https://www.fairwork.gov.au/employment-conditions/awards/list-of-awards"
 CODE_RE = re.compile(r"\bMA\d{6}\b", re.I)
 
 
 def award_catalogue() -> list[dict]:
-    response = httpx.get(AWARDS_INDEX, timeout=60, follow_redirects=True)
+    manifest = json.loads(Path(config.worklaw_source_manifest).read_text())
+    awards_index = manifest["fair_work_ombudsman"]["awards_index"]
+    response = httpx.get(awards_index, timeout=60, follow_redirects=True)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, "html.parser")
     seen = set()
