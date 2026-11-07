@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 """
 Hybrid retrieval: dense (BGE-M3) + sparse (BGE-M3 lexical weights via pg full-text).
 Fused with Reciprocal Rank Fusion (RRF).
 """
 import json
+import re
 import psycopg2
 from pgvector.psycopg2 import register_vector
 from retrieval.dense_retriever import encode_query, get_model
@@ -116,21 +119,71 @@ def lexical_search(query: str, conn, k: int = None, act_id: int | None = None) -
     """Safe low-footprint fallback when BGE-M3 is not enabled locally."""
     k = k or config.top_k_retrieve
     cur = conn.cursor()
-    act_filter = "AND s.act_id = %s" if act_id else ""
-    params = [query, query, f"%{query}%", f"%{query}%"]
+    # If a question contains the meaningful words of a document title, scope
+    # the lexical pass to that document. This prevents generic terms such as
+    # "award" or "leave" from pulling an unrelated Award above the named one.
+    query_terms = set(re.findall(r"[a-z0-9]+", query.lower()))
+    stop_terms = {"what", "does", "the", "say", "about", "is", "are", "for", "and", "in", "of", "to", "a", "an", "how", "can", "under", "with", "on", "from"}
+    domain_terms = {
+        "act", "acts", "award", "awards", "clause", "clauses", "classification",
+        "employee", "employees", "employer", "employers", "employment", "entitlement",
+        "fair", "guidance", "guide", "hours", "leave", "modern", "overtime", "pay",
+        "penalty", "rate", "rates", "regulation", "regulations", "section", "wage",
+        "wages", "work", "worker", "workers", "working", "agreement", "agreements",
+        "national", "dismissal", "allowance", "allowances", "standard", "standards",
+    }
+    if not query_terms.intersection(domain_terms) and not re.search(r"\b(?:s|sec|section|clause|regulation)\s*\d", query.lower()):
+        return []
+    search_terms = [term for term in sorted(query_terms)
+                    if term not in stop_terms and len(term) > 2]
+    search_query = " | ".join(search_terms) or query
+    section_match = re.search(r"\b(?:s|sec|section|clause|regulation)\s+(\d+[A-Za-z]?(?:\.\d+)*)", query.lower())
+    exact_section = section_match.group(1) if section_match else "__no_exact_section__"
+    cur.execute("SELECT id, name FROM acts")
+    title_matches = []
+    for candidate_id, name in cur.fetchall():
+        title_terms = [t for t in re.findall(r"[a-z0-9]+", name.lower())
+                       if t not in stop_terms and not t.isdigit()
+                       and not re.fullmatch(r"ma\d+", t) and len(t) > 2]
+        if len(title_terms) >= 2 and all(term in query_terms for term in title_terms):
+            title_matches.append(candidate_id)
+
     if act_id:
-        params.append(act_id)
+        act_filter = "AND s.act_id = %s"
+        scope_param = act_id
+    elif title_matches:
+        act_filter = "AND s.act_id = ANY(%s)"
+        scope_param = title_matches
+    else:
+        act_filter = ""
+        scope_param = None
+    # Boost a document-title match so a question mentioning an Act or Award
+    # does not get drowned out by generic words such as "award" or "leave".
+    params = [exact_section, search_query, search_query, search_query, search_query,
+              search_query, search_query,
+              f"%{query}%", exact_section, f"%{query}%"]
+    if scope_param is not None:
+        params.append(scope_param)
     params.append(k)
     cur.execute(f"""
         SELECT s.id, s.section_no, s.section_heading, s.body,
                a.name AS act_name, c.compilation_dt::text, s.source_url,
-               greatest(ts_rank_cd(s.body_tsv, plainto_tsquery('english', %s)), 0.01) AS score
+               greatest(
+                   CASE WHEN s.section_no = %s THEN 100.0 ELSE 0 END,
+                   ts_rank_cd(s.body_tsv, to_tsquery('english', %s)),
+                   2.0 * ts_rank_cd(to_tsvector('english', a.name), to_tsquery('english', %s)),
+                   1.25 * ts_rank_cd(to_tsvector('english', coalesce(s.section_heading, '')), to_tsquery('english', %s)),
+                   0.01
+               ) AS score
         FROM sections s
         JOIN acts a ON a.id = s.act_id
         JOIN compilations c ON c.id = s.compilation_id
         WHERE c.is_latest = true
-          AND (s.body_tsv @@ plainto_tsquery('english', %s)
+          AND (s.body_tsv @@ to_tsquery('english', %s)
+               OR to_tsvector('english', a.name) @@ to_tsquery('english', %s)
+               OR to_tsvector('english', coalesce(s.section_heading, '')) @@ to_tsquery('english', %s)
                OR s.section_no ILIKE %s
+               OR s.section_no = %s
                OR coalesce(s.section_heading, '') ILIKE %s)
           {act_filter}
         ORDER BY score DESC, s.id
