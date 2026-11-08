@@ -7,6 +7,7 @@ material is retained from the Award page's History blocks for V2.
 """
 import json
 import re
+from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -83,6 +84,7 @@ def fetch_one(award: dict, raw_dir: Path) -> dict:
         "publisher": "Fair Work Ombudsman / Fair Work Commission",
         "document_type": "award",
         "authority_level": "instrument",
+        "retrieved_at": datetime.now(timezone.utc).isoformat(),
     }
 
 
