@@ -61,11 +61,17 @@ def ingest(conn, skip_embedding: bool = False):
             if act_id is None:
                 # insert act first
                 cur.execute(
-                    "INSERT INTO acts (title_id, name, year) VALUES (%s, %s, %s) "
-                    "ON CONFLICT (title_id) DO UPDATE SET name=EXCLUDED.name "
+                    "INSERT INTO acts (title_id, name, year, document_type, authority_level, publisher) "
+                    "VALUES (%s, %s, %s, %s, %s, %s) "
+                    "ON CONFLICT (title_id) DO UPDATE SET name=EXCLUDED.name, "
+                    "document_type=EXCLUDED.document_type, authority_level=EXCLUDED.authority_level, "
+                    "publisher=EXCLUDED.publisher "
                     "RETURNING id",
                     (sections[0]["titleId"], sections[0]["actName"],
-                     int(sections[0]["compilationDate"][:4]) if sections[0].get("compilationDate") else None),
+                     int(sections[0]["compilationDate"][:4]) if sections[0].get("compilationDate") else None,
+                     sections[0].get("documentType", "legislation"),
+                     sections[0].get("authorityLevel", "primary_law"),
+                     sections[0].get("publisher", "Federal Register of Legislation")),
                 )
                 act_id = cur.fetchone()[0]
                 act_map[sections[0]["actName"]] = act_id
