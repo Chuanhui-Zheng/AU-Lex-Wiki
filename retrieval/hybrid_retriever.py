@@ -55,7 +55,8 @@ def hybrid_search(
 
     cur.execute(f"""
         SELECT s.id, s.section_no, s.section_heading, s.body,
-               a.name AS act_name, c.compilation_dt::text, s.source_url,
+               a.name AS act_name, a.document_type, a.authority_level,
+               c.compilation_dt::text, s.source_url,
                ROW_NUMBER() OVER (ORDER BY s.embedding <=> %s) AS rn
         FROM sections s
         JOIN acts a ON a.id = s.act_id
@@ -65,7 +66,8 @@ def hybrid_search(
         LIMIT %s
     """, dense_params)
     dense_rows = cur.fetchall()
-    cols = ["id","section_no","section_heading","body","act_name","compilation_dt","source_url","rn"]
+    cols = ["id","section_no","section_heading","body","act_name",
+            "document_type","authority_level","compilation_dt","source_url","rn"]
     dense_results = {r[0]: dict(zip(cols, r)) for r in dense_rows}
 
     # ── Keyword pass (pg full-text) ──────────────────────────────────────────
@@ -167,7 +169,8 @@ def lexical_search(query: str, conn, k: int = None, act_id: int | None = None) -
     params.append(k)
     cur.execute(f"""
         SELECT s.id, s.section_no, s.section_heading, s.body,
-               a.name AS act_name, c.compilation_dt::text, s.source_url,
+               a.name AS act_name, a.document_type, a.authority_level,
+               c.compilation_dt::text, s.source_url,
                greatest(
                    CASE WHEN s.section_no = %s THEN 100.0 ELSE 0 END,
                    ts_rank_cd(s.body_tsv, to_tsquery('english', %s)),
@@ -191,5 +194,6 @@ def lexical_search(query: str, conn, k: int = None, act_id: int | None = None) -
     """, params)
     rows = cur.fetchall()
     cur.close()
-    cols = ["id", "section_no", "section_heading", "body", "act_name", "compilation_dt", "source_url", "score"]
+    cols = ["id", "section_no", "section_heading", "body", "act_name",
+            "document_type", "authority_level", "compilation_dt", "source_url", "score"]
     return [dict(zip(cols, row)) for row in rows]
