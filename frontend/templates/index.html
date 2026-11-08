@@ -238,7 +238,6 @@ function renderLibraryChat(data = null, query = '') {
       }
       answerWindow.appendChild(answer);
     });
-    answerWindow.scrollTop = answerWindow.scrollHeight;
   } else {
     answerWindow.innerHTML = '<div class="ask-empty-state">Ask a question about the selected Act. The answer and evidence will stay in this panel.</div>';
   }
@@ -302,7 +301,10 @@ function renderLibraryChat(data = null, query = '') {
   });
   panel.append(header, answerWindow, form);
   actPreview.replaceChildren(panel);
-  textarea.focus();
+  requestAnimationFrame(() => {
+    answerWindow.scrollTop = answerWindow.scrollHeight;
+    textarea.focus();
+  });
 }
 
 function renderPlaceholder() {

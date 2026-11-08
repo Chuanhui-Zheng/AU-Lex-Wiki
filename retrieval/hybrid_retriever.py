@@ -13,6 +13,43 @@ from config import config
 
 QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
+CN_QUERY_ALIASES = {
+    "雇主": "employer employers",
+    "员工": "employee employees worker workers",
+    "时薪": "hourly rate hourly pay",
+    "工资": "wage wages pay rate",
+    "支付": "pay paid payment",
+    "低于": "below less than minimum",
+    "法定": "statutory legal national",
+    "最低标准": "minimum standard minimum entitlement",
+    "最低工资": "minimum wage national minimum wage",
+    "现代奖励裁定": "modern award modern awards",
+    "行业": "industry",
+    "连续": "consecutive continuous",
+    "小时": "hours hour",
+    "天": "days day",
+    "休息": "rest break meal break",
+    "加班": "overtime",
+    "兼职": "part time casual",
+    "全职": "full time",
+    "年假": "annual leave",
+    "病假": "sick leave",
+    "解雇": "dismissal termination",
+    "不公平解雇": "unfair dismissal",
+    "有权": "entitled entitlement",
+    "规定": "require requirement rule",
+}
+
+
+def expand_query_terms(query: str) -> set[str]:
+    """Add English legal search terms for common Chinese workplace-law wording."""
+    lowered = query.lower()
+    terms = set(re.findall(r"[a-z0-9]+", lowered))
+    for phrase, aliases in CN_QUERY_ALIASES.items():
+        if phrase in query:
+            terms.update(aliases.split())
+    return terms
+
 
 def encode_query_full(query: str) -> tuple[list[float], dict[str, float]]:
     model = get_model()
@@ -125,8 +162,8 @@ def lexical_search(query: str, conn, k: int = None, act_id: int | None = None) -
     # If a question contains the meaningful words of a document title, scope
     # the lexical pass to that document. This prevents generic terms such as
     # "award" or "leave" from pulling an unrelated Award above the named one.
-    query_terms = set(re.findall(r"[a-z0-9]+", query.lower()))
-    stop_terms = {"what", "does", "the", "say", "about", "is", "are", "for", "and", "in", "of", "to", "a", "an", "how", "can", "under", "with", "on", "from"}
+    query_terms = expand_query_terms(query)
+    stop_terms = {"what", "does", "the", "say", "about", "is", "are", "for", "and", "in", "of", "to", "a", "an", "how", "can", "under", "with", "on", "from", "current", "legally", "whether"}
     domain_terms = {
         "act", "acts", "award", "awards", "clause", "clauses", "classification",
         "employee", "employees", "employer", "employers", "employment", "entitlement",
@@ -140,20 +177,29 @@ def lexical_search(query: str, conn, k: int = None, act_id: int | None = None) -
     search_terms = [term for term in sorted(query_terms)
                     if term not in stop_terms and len(term) > 2]
     search_query = " | ".join(search_terms) or query
+    award_focus = int(bool(query_terms.intersection({"award", "awards", "modern"})))
+    agreement_focus = int(bool(query_terms.intersection({"agreement", "agreements"})))
+    minimum_focus = int(bool(query_terms.intersection({"minimum", "wage", "wages"})))
     section_match = re.search(r"\b(?:s|sec|section|clause|regulation)\s+(\d+[A-Za-z]?(?:\.\d+)*)", query.lower())
     exact_section = section_match.group(1) if section_match else "__no_exact_section__"
     cur.execute("SELECT id, name, document_type FROM acts")
     title_matches = []
+    generic_title_terms = {
+        "australia", "national", "enterprise", "agreement", "act", "fair", "work",
+        "award", "awards", "modern", "industry", "the", "of", "and", "current",
+        "minimum", "wage", "wages", "pay", "rate", "hours", "employee", "employer",
+    }
     for candidate_id, name, document_type in cur.fetchall():
         title_terms = [t for t in re.findall(r"[a-z0-9]+", name.lower())
                        if t not in stop_terms and not t.isdigit()
                        and not re.fullmatch(r"ma\d+", t) and len(t) > 2]
         overlap = set(title_terms).intersection(query_terms)
+        specific_overlap = overlap.difference(generic_title_terms)
         # Decision titles include the full case caption and citation. A user
         # normally names only the leading parties, so require a strong partial
         # match for decisions instead of requiring every caption token.
-        decision_match = document_type == "decision" and len(overlap) >= 2
-        agreement_match = document_type == "enterprise_agreement" and len(overlap) >= 2
+        decision_match = document_type == "decision" and len(overlap) >= 2 and specific_overlap
+        agreement_match = document_type == "enterprise_agreement" and len(overlap) >= 2 and specific_overlap
         full_title_match = len(title_terms) >= 2 and all(term in query_terms for term in title_terms)
         if full_title_match or decision_match or agreement_match:
             title_matches.append(candidate_id)
@@ -179,13 +225,18 @@ def lexical_search(query: str, conn, k: int = None, act_id: int | None = None) -
         SELECT s.id, s.section_no, s.section_heading, s.body,
                a.name AS act_name, a.document_type, a.authority_level, a.title_id,
                c.compilation_dt::text, s.source_url,
-               greatest(
-                   CASE WHEN s.section_no = %s THEN 100.0 ELSE 0 END,
-                   ts_rank_cd(s.body_tsv, to_tsquery('english', %s)),
-                   2.0 * ts_rank_cd(to_tsvector('english', a.name), to_tsquery('english', %s)),
-                   1.25 * ts_rank_cd(to_tsvector('english', coalesce(s.section_heading, '')), to_tsquery('english', %s)),
-                   0.01
-               ) AS score
+               CASE WHEN s.section_no = %s THEN 100.0 ELSE
+                   8.0 * CASE WHEN to_tsvector('english', coalesce(s.section_heading, ''))
+                                      @@ to_tsquery('english', %s) THEN 1 ELSE 0 END
+                   + least(6.0, ts_rank_cd(s.body_tsv, to_tsquery('english', %s)))
+                   + 3.0 * ts_rank_cd(to_tsvector('english', a.name), to_tsquery('english', %s))
+                   + 2.0 * ts_rank_cd(to_tsvector('english', coalesce(s.section_heading, '')), to_tsquery('english', %s))
+                   + CASE WHEN {award_focus}=1 AND a.document_type='award' THEN 15.0
+                          WHEN {award_focus}=1 AND a.document_type='guidance' THEN 8.0
+                          WHEN {agreement_focus}=1 AND a.document_type='enterprise_agreement' THEN 12.0
+                          WHEN {minimum_focus}=1 AND a.document_type='enterprise_agreement' THEN -4.0
+                          ELSE 0.0 END
+               END AS score
         FROM sections s
         JOIN acts a ON a.id = s.act_id
         JOIN compilations c ON c.id = s.compilation_id
@@ -199,7 +250,7 @@ def lexical_search(query: str, conn, k: int = None, act_id: int | None = None) -
           {act_filter}
         ORDER BY score DESC, s.id
         LIMIT %s
-    """, params)
+    """, [params[0], params[1], params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[8], params[9], *params[10:]])
     rows = cur.fetchall()
     cur.close()
     cols = ["id", "section_no", "section_heading", "body", "act_name",

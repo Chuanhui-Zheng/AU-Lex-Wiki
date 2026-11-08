@@ -494,8 +494,8 @@ body { background: var(--bg); color: var(--text); }
 .library-chat-actions .preview-back { margin-top: 0; }
 .library-chat-answer { flex: 1 1 auto; min-height: 340px; overflow: auto; padding: 1rem .1rem .5rem; }
 .library-chat-answer > .ask-empty-state { min-height: 100%; }
-.library-chat-form { display: flex; gap: .5rem; flex: 0 0 auto; margin-top: .6rem; padding-top: .7rem; border-top: 1px solid var(--border); }
-.library-chat-form textarea { flex: 1; min-width: 0; min-height: 42px; max-height: 86px; resize: vertical; border: 1px solid var(--border); border-radius: 9px; padding: .6rem .7rem; background: var(--surface); color: var(--text); font: .84rem/1.4 inherit; }
+.library-chat-form { display: flex; align-items: flex-end; gap: .5rem; flex: 0 0 auto; margin-top: .6rem; padding-top: .7rem; border-top: 1px solid var(--border); }
+.library-chat-form textarea { flex: 1; width: 100%; min-width: 0; height: 42px; min-height: 42px; max-height: 180px; resize: vertical; overflow-y: auto; border: 1px solid var(--border); border-radius: 9px; padding: .6rem .7rem; background: var(--surface); color: var(--text); font: .84rem/1.4 inherit; }
 .library-chat-form button { min-width: 70px; border: 0; border-radius: 9px; background: var(--accent); color: #fff; font-weight: 800; cursor: pointer; }
 .library-chat-form button:disabled { opacity: .55; }
 .preview-chat-header { display: flex; flex-wrap: wrap; align-items: start; gap: .3rem 1rem; }

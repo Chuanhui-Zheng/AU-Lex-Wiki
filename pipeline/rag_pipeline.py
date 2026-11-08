@@ -28,9 +28,22 @@ def is_greeting(query: str) -> bool:
     """Handle lightweight conversation without forcing it through legal retrieval."""
     normalized = re.sub(r"[\s\u3000，。！？!?、,.~～]+", "", query.lower())
     return normalized in {
-        "hi", "hello", "hey", "hithere", "hellothere", "你好", "您好", "嗨", "哈喽",
+        "hi", "hello", "hey", "hithere", "hellothere", "nihao", "nihaoma", "你好", "您好", "嗨", "哈喽",
         "早上好", "下午好", "晚上好", "你好吗", "你是谁", "你能做什么",
     }
+
+
+def is_casual_conversation(query: str) -> bool:
+    """Recognise non-legal chat so it can use a normal conversational prompt."""
+    normalized = re.sub(r"[\s\u3000，。！？!?、,.~～]+", "", query.lower())
+    if is_greeting(query) or normalized in {
+        "谢谢", "谢谢你", "thanks", "thankyou", "再见", "拜拜", "bye", "goodbye",
+        "你怎么样", "howareyou", "what'sup", "whatsup", "help", "帮助",
+    }:
+        return True
+    if re.search(r"(who are you|what can you do|can you help|tell me a joke|how are you|你能帮我|你可以帮我|讲个笑话|你是什么)", query.lower()):
+        return True
+    return False
 
 
 def requires_safety_refusal(query: str) -> bool:
@@ -63,7 +76,9 @@ def _openai_compatible_answer(
     base_url: str,
     prompt: str,
     provider: str = "openai_compatible",
+    system_prompt: str | None = None,
 ) -> str:
+    system_prompt = system_prompt or SYSTEM_PROMPT
     default_base_url = "https://openrouter.ai/api/v1" if provider == "openrouter" else "https://api.openai.com/v1"
     url = (base_url or default_base_url).rstrip("/") + "/chat/completions"
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
@@ -78,7 +93,7 @@ def _openai_compatible_answer(
             "temperature": 0,
             "max_tokens": 1024,
             "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt},
             ],
         },
@@ -88,13 +103,14 @@ def _openai_compatible_answer(
     return response.json()["choices"][0]["message"]["content"]
 
 
-def _gemini_answer(api_key: str, model: str, base_url: str, prompt: str) -> str:
+def _gemini_answer(api_key: str, model: str, base_url: str, prompt: str, system_prompt: str | None = None) -> str:
+    system_prompt = system_prompt or SYSTEM_PROMPT
     root = (base_url or "https://generativelanguage.googleapis.com/v1beta").rstrip("/")
     response = httpx.post(
         f"{root}/models/{model}:generateContent",
         params={"key": api_key},
         json={
-            "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+            "systemInstruction": {"parts": [{"text": system_prompt}]},
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0, "maxOutputTokens": 1024},
         },
@@ -110,19 +126,21 @@ def generate_text(
     provider: str,
     model: str,
     base_url: str | None = None,
+    system_prompt: str | None = None,
 ) -> str:
+    system_prompt = system_prompt or SYSTEM_PROMPT
     if provider == "anthropic":
         message = get_client(api_key=api_key).messages.create(
             model=model,
             max_tokens=1024,
-            system=SYSTEM_PROMPT,
+            system=system_prompt,
             messages=[{"role": "user", "content": prompt}],
         )
         return message.content[0].text
     if provider == "gemini":
-        return _gemini_answer(api_key, model, base_url or "", prompt)
+        return _gemini_answer(api_key, model, base_url or "", prompt, system_prompt=system_prompt)
     if provider in {"openai_compatible", "openrouter"}:
-        return _openai_compatible_answer(api_key, model, base_url or "", prompt, provider=provider)
+        return _openai_compatible_answer(api_key, model, base_url or "", prompt, provider=provider, system_prompt=system_prompt)
     raise ValueError("unsupported provider")
 
 
@@ -147,6 +165,18 @@ Rules:
     - For a comparison, use separate headings or a compact table and cite each proposition.
     - For a question asking which provisions are relevant, list the relevant sections and explain why each one matters.
     Do not use one generic answer format for every question."""
+
+CASUAL_SYSTEM_PROMPT = """You are the friendly general-conversation assistant inside AU-WorkLaw-Atlas.
+Respond naturally in the user's language. You may greet the user, explain what you can do,
+or answer ordinary non-legal conversation. Do not pretend to know live information such as
+current weather or news. If the user asks a workplace-law question, tell them to ask it as
+a legal question so the source-grounded retrieval mode can provide citations. Do not invent
+legal rules and do not output fake [S1] citations in casual mode."""
+
+CASUAL_FALLBACK = (
+    "你好！我是 AU-WorkLaw-Atlas。你可以和我进行日常对话，也可以直接提问澳大利亚劳动法；"
+    "劳动法问题会进入带官方条文证据的检索问答。"
+)
 
 
 def build_context(sections: list[dict]) -> str:
@@ -267,20 +297,62 @@ def answer(
         return {"answer": REFUSAL, "sources": [], "refused": True, "reason": "empty_query"}
     if len(query) > 2000:
         return {"answer": REFUSAL, "sources": [], "refused": True, "reason": "query_too_long"}
-    if is_greeting(query):
-        return {
-            "answer": GREETING_RESPONSE,
-            "sources": [],
-            "refused": False,
-            "reason": "conversation_greeting",
-            "grounding": "assistant_capability",
-        }
     if requires_safety_refusal(query):
         return {
             "answer": REFUSAL,
             "sources": [],
             "refused": True,
             "reason": "safety_refusal_prediction_or_litigation",
+        }
+    if is_casual_conversation(query):
+        if mode == "offline":
+            return {
+                "answer": CASUAL_FALLBACK,
+                "sources": [],
+                "refused": False,
+                "reason": "casual_conversation_offline_fallback",
+                "grounding": "assistant_capability",
+            }
+        provider = provider or config.llm_provider
+        model = model or config.llm_model
+        configured_keys = {
+            "anthropic": config.anthropic_api_key,
+            "openai_compatible": config.openai_api_key,
+            "openrouter": config.openrouter_api_key,
+            "gemini": config.gemini_api_key,
+        }
+        api_key = api_key or configured_keys.get(provider, "")
+        if provider not in configured_keys:
+            return {"answer": "Unsupported model provider.", "sources": [], "refused": True, "reason": "unsupported_provider"}
+        if not api_key:
+            return {
+                "answer": "Online daily conversation needs an API key. Add one in Ask settings, or switch to Offline for the built-in assistant response.",
+                "sources": [],
+                "refused": True,
+                "reason": "api_key_missing_for_casual_conversation",
+            }
+        try:
+            casual_text = generate_text(
+                query,
+                api_key=api_key,
+                provider=provider,
+                model=model,
+                base_url=base_url,
+                system_prompt=CASUAL_SYSTEM_PROMPT,
+            ).strip()
+        except Exception:
+            return {
+                "answer": "The online conversation model could not be reached. Check the provider settings or switch to Offline.",
+                "sources": [],
+                "refused": True,
+                "reason": "casual_llm_unavailable",
+            }
+        return {
+            "answer": casual_text or CASUAL_FALLBACK,
+            "sources": [],
+            "refused": False,
+            "reason": "casual_conversation",
+            "grounding": "general_conversation",
         }
 
     close_conn = False
