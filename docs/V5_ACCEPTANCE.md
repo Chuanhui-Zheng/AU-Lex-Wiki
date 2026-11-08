@@ -15,6 +15,8 @@
 - [x] V5 benchmark reports Recall@1/3/5/10, MRR@10, nDCG@5, evidence coverage,
   Wilson intervals, paired bootstrap CI, McNemar significance, refusal and
   repeated latency.
+- [x] The primary comparison uses a fair title/body/heading FTS ablation; the
+  old body-only result is labelled historical context.
 - [x] BGE-M3 dense and sparse vectors remain empty in the default profile.
 
 Run the acceptance suite with one command:

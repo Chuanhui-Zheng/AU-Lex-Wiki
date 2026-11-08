@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import math
 import random
+import re
 import statistics
 import time
 import argparse
@@ -66,6 +67,43 @@ def baseline_search(query: str, conn, k: int = 20) -> list[dict]:
     columns = [
         "id", "section_no", "section_heading", "body", "act_name",
         "document_type", "authority_level", "compilation_dt", "source_url", "score",
+    ]
+    return [dict(zip(columns, row)) for row in rows]
+
+
+def fair_title_search(query: str, conn, k: int = 20) -> list[dict]:
+    """Fair ablation: title/body/heading FTS without boosting or scoping."""
+    stop_terms = {"what", "does", "the", "say", "about", "is", "are", "for", "and", "in", "of", "to", "a", "an", "how", "can", "under", "with", "on", "from"}
+    terms = [term for term in re.findall(r"[a-z0-9]+", query.lower()) if term not in stop_terms and len(term) > 2]
+    tsquery = " | ".join(terms) or query
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT s.id, s.section_no, s.section_heading, s.body,
+               a.name AS act_name, a.document_type, a.authority_level, a.title_id,
+               c.compilation_dt::text, s.source_url,
+               greatest(
+                   ts_rank_cd(s.body_tsv, to_tsquery('english', %s)),
+                   ts_rank_cd(to_tsvector('english', a.name), to_tsquery('english', %s)),
+                   ts_rank_cd(to_tsvector('english', coalesce(s.section_heading, '')), to_tsquery('english', %s))
+               ) AS score
+        FROM sections s
+        JOIN acts a ON a.id=s.act_id
+        JOIN compilations c ON c.id=s.compilation_id
+        WHERE c.is_latest = true
+          AND (s.body_tsv @@ to_tsquery('english', %s)
+               OR to_tsvector('english', a.name) @@ to_tsquery('english', %s)
+               OR to_tsvector('english', coalesce(s.section_heading, '')) @@ to_tsquery('english', %s))
+        ORDER BY score DESC, s.id
+        LIMIT %s
+        """,
+        (tsquery, tsquery, tsquery, tsquery, tsquery, tsquery, k),
+    )
+    rows = cur.fetchall()
+    cur.close()
+    columns = [
+        "id", "section_no", "section_heading", "body", "act_name",
+        "document_type", "authority_level", "title_id", "compilation_dt", "source_url", "score",
     ]
     return [dict(zip(columns, row)) for row in rows]
 
@@ -128,31 +166,31 @@ def wilson_interval(successes: int, total: int, z: float = 1.96) -> list[float]:
     return [max(0.0, centre - margin), min(1.0, centre + margin)]
 
 
-def paired_bootstrap_ci(results: list[dict], repetitions: int = 4000) -> list[float]:
-    """95% CI for optimized-minus-baseline Recall@5 on paired questions."""
+def paired_bootstrap_ci(results: list[dict], left_label: str = "fair", repetitions: int = 4000) -> list[float]:
+    """95% CI for optimized-minus-left-label Recall@5 on paired questions."""
     in_scope = [item for item in results if item["in_scope"]]
     rng = random.Random(20261120)
     differences = []
     for _ in range(repetitions):
         sample = [rng.choice(in_scope) for _ in in_scope]
-        baseline = sum(bool(item["baseline_rank"] and item["baseline_rank"] <= 5) for item in sample) / len(sample)
+        baseline = sum(bool(item[f"{left_label}_rank"] and item[f"{left_label}_rank"] <= 5) for item in sample) / len(sample)
         optimized = sum(bool(item["optimized_rank"] and item["optimized_rank"] <= 5) for item in sample) / len(sample)
         differences.append(optimized - baseline)
     differences.sort()
     return [differences[int(0.025 * repetitions)], differences[int(0.975 * repetitions)]]
 
 
-def mcnemar_exact(results: list[dict]) -> dict:
+def mcnemar_exact(results: list[dict], left_label: str = "fair") -> dict:
     """Paired exact two-sided McNemar test for Recall@5 changes."""
     in_scope = [item for item in results if item["in_scope"]]
     baseline_only = sum(
-        bool(item["baseline_rank"] and item["baseline_rank"] <= 5)
+        bool(item[f"{left_label}_rank"] and item[f"{left_label}_rank"] <= 5)
         and not bool(item["optimized_rank"] and item["optimized_rank"] <= 5)
         for item in in_scope
     )
     optimized_only = sum(
         bool(item["optimized_rank"] and item["optimized_rank"] <= 5)
-        and not bool(item["baseline_rank"] and item["baseline_rank"] <= 5)
+        and not bool(item[f"{left_label}_rank"] and item[f"{left_label}_rank"] <= 5)
         for item in in_scope
     )
     discordant = baseline_only + optimized_only
@@ -176,10 +214,11 @@ def bucket_metrics(results: list[dict], label: str) -> list[dict]:
 
 def render_report(payload: dict) -> str:
     baseline = payload["retrieval"]["baseline"]
+    fair = payload["retrieval"]["fair"]
     optimized = payload["retrieval"]["optimized"]
-    hit_delta = optimized["recall"]["5"] - baseline["recall"]["5"]
-    mrr_delta = optimized["mrr_at_10"] - baseline["mrr_at_10"]
-    coverage_delta = optimized["mean_evidence_coverage"] - baseline["mean_evidence_coverage"]
+    hit_delta = optimized["recall"]["5"] - fair["recall"]["5"]
+    mrr_delta = optimized["mrr_at_10"] - fair["mrr_at_10"]
+    coverage_delta = optimized["mean_evidence_coverage"] - fair["mean_evidence_coverage"]
     refusal = payload["refusal"]
     latency = payload["latency_ms"]
     significance = payload["significance"]
@@ -193,17 +232,28 @@ def render_report(payload: dict) -> str:
 Generated: `{payload['generated_at']}`
 Profile: PostgreSQL full-text, title-aware retrieval, no BGE-M3 vectors.
 
-## Resume-ready comparison (`n={payload['questions']['in_scope']}` in-scope)
+## Fair ablation (`n={payload['questions']['in_scope']}` in-scope)
 
-| Metric | Baseline: simple PostgreSQL FTS | Optimized: title-aware + domain-gated FTS | Change |
+| Metric | Fair baseline: title/body/heading FTS | Optimized: title-aware + domain-gated FTS | Change |
 |---|---:|---:|---:|
-| Recall@1 | {pct(baseline['recall']['1'])} | {pct(optimized['recall']['1'])} | {(optimized['recall']['1'] - baseline['recall']['1']) * 100:+.1f} pp |
-| Recall@3 | {pct(baseline['recall']['3'])} | {pct(optimized['recall']['3'])} | {(optimized['recall']['3'] - baseline['recall']['3']) * 100:+.1f} pp |
-| Recall@5 / source hit rate | {pct(baseline['recall']['5'])} | {pct(optimized['recall']['5'])} | {hit_delta * 100:+.1f} pp |
-| Recall@10 | {pct(baseline['recall']['10'])} | {pct(optimized['recall']['10'])} | {(optimized['recall']['10'] - baseline['recall']['10']) * 100:+.1f} pp |
-| MRR@10 | {baseline['mrr_at_10']:.3f} | {optimized['mrr_at_10']:.3f} | {mrr_delta:+.3f} |
-| nDCG@5 | {baseline['ndcg_at_5']:.3f} | {optimized['ndcg_at_5']:.3f} | {optimized['ndcg_at_5'] - baseline['ndcg_at_5']:+.3f} |
-| Evidence-term coverage proxy | {pct(baseline['mean_evidence_coverage'])} | {pct(optimized['mean_evidence_coverage'])} | {coverage_delta * 100:+.1f} pp |
+| Recall@1 | {pct(fair['recall']['1'])} | {pct(optimized['recall']['1'])} | {(optimized['recall']['1'] - fair['recall']['1']) * 100:+.1f} pp |
+| Recall@3 | {pct(fair['recall']['3'])} | {pct(optimized['recall']['3'])} | {(optimized['recall']['3'] - fair['recall']['3']) * 100:+.1f} pp |
+| Recall@5 / source hit rate | {pct(fair['recall']['5'])} | {pct(optimized['recall']['5'])} | {hit_delta * 100:+.1f} pp |
+| Recall@10 | {pct(fair['recall']['10'])} | {pct(optimized['recall']['10'])} | {(optimized['recall']['10'] - fair['recall']['10']) * 100:+.1f} pp |
+| MRR@10 | {fair['mrr_at_10']:.3f} | {optimized['mrr_at_10']:.3f} | {mrr_delta:+.3f} |
+| nDCG@5 | {fair['ndcg_at_5']:.3f} | {optimized['ndcg_at_5']:.3f} | {optimized['ndcg_at_5'] - fair['ndcg_at_5']:+.3f} |
+| Evidence-term coverage proxy | {pct(fair['mean_evidence_coverage'])} | {pct(optimized['mean_evidence_coverage'])} | {coverage_delta * 100:+.1f} pp |
+
+## Historical baseline comparison
+
+The old body-only PostgreSQL FTS baseline is retained for historical context.
+It excludes document titles, so it is not the primary ablation for algorithmic
+improvement.
+
+| Metric | Historical body-only FTS | Optimized retrieval | Change |
+|---|---:|---:|---:|
+| Recall@5 | {pct(baseline['recall']['5'])} | {pct(optimized['recall']['5'])} | {(optimized['recall']['5'] - baseline['recall']['5']) * 100:+.1f} pp |
+| MRR@10 | {baseline['mrr_at_10']:.3f} | {optimized['mrr_at_10']:.3f} | {optimized['mrr_at_10'] - baseline['mrr_at_10']:+.3f} |
 
 The fixed set contains `{payload['questions']['total']}` questions from
 `{payload['questions']['source']}`: `{payload['questions']['in_scope']}` answerable
@@ -278,6 +328,7 @@ def main() -> None:
         started = time.perf_counter()
         baseline = baseline_search(item["question"], conn)
         baseline_ms = (time.perf_counter() - started) * 1000
+        fair = fair_title_search(item["question"], conn)
         optimized = lexical_search(item["question"], conn, k=20)
         for _ in range(max(1, args.latency_repeats)):
             started = time.perf_counter()
@@ -286,8 +337,10 @@ def main() -> None:
         result = {
             **item,
             "baseline_rank": match_rank(baseline, item),
+            "fair_rank": match_rank(fair, item),
             "optimized_rank": match_rank(optimized, item),
             "baseline_coverage": evidence_coverage(baseline, item),
+            "fair_coverage": evidence_coverage(fair, item),
             "optimized_coverage": evidence_coverage(optimized, item),
             "baseline_latency_ms": baseline_ms,
         }
@@ -319,6 +372,7 @@ def main() -> None:
         "reports": {"report": str(args.report), "json": str(args.json_report)},
         "retrieval": {
             "baseline": retrieval_metrics(results, "baseline"),
+            "fair": retrieval_metrics(results, "fair"),
             "optimized": retrieval_metrics(results, "optimized"),
         },
         "refusal": {
@@ -334,8 +388,8 @@ def main() -> None:
             "p95": percentile(optimized_latencies, 0.95),
         },
         "significance": {
-            "bootstrap_ci": paired_bootstrap_ci(results),
-            "mcnemar": mcnemar_exact(results),
+            "bootstrap_ci": paired_bootstrap_ci(results, left_label="fair"),
+            "mcnemar": mcnemar_exact(results, left_label="fair"),
         },
         "stratified": {
             "baseline": bucket_metrics(results, "baseline"),

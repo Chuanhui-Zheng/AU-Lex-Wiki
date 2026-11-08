@@ -123,12 +123,13 @@ python -m scripts.evaluate_rag \
   --json-report output/rag_evaluation_v4.json
 ```
 
-The default report compares simple PostgreSQL FTS with the optimized
-title-aware retriever on the 79-question V5 set using Recall@1/3/5/10, MRR@10,
-nDCG@5, evidence-term coverage, stratified Wilson intervals, paired bootstrap
-confidence intervals, exact McNemar significance, refusal accuracy and
-repeated local latency. It does not label these proxies as RAGAS Faithfulness
-or Answer Correctness.
+The default report compares a fair title/body/heading FTS ablation with the
+optimized title-aware retriever on the 79-question V5 set using Recall@1/3/5/10,
+MRR@10, nDCG@5, evidence-term coverage, stratified Wilson intervals, paired
+bootstrap confidence intervals, exact McNemar significance, refusal accuracy
+and repeated local latency. It also retains the old body-only baseline as
+historical context. It does not label these proxies as RAGAS Faithfulness or
+Answer Correctness.
 
 The V4 decision layer is browsable at `/decisions`; each decision page shows
 the official source link and its explicit Act, Award and agreement graph edges.
