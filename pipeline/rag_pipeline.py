@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Full RAG pipeline: hybrid retrieval → rerank → LLM generation.
 """
