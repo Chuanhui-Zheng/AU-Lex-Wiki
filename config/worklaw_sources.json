@@ -10,6 +10,7 @@
     "decisions_search": "https://www.fwc.gov.au/hearings-decisions/find-decisions-and-orders"
   },
   "fair_work_ombudsman": {
+    "awards_index": "https://www.fairwork.gov.au/employment-conditions/awards/list-of-awards",
     "guides_index": "https://www.fairwork.gov.au/tools-and-resources/workplace-guides",
     "pay_guides_index": "https://www.fairwork.gov.au/pay-and-wages/minimum-wages/pay-guides"
   }
