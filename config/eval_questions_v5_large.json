@@ -1,0 +1,843 @@
+[
+  {
+    "id": "legislation-01",
+    "bucket": "legislation",
+    "query_style": "authority_alias",
+    "question": "What does section 7.14 of the Fair Work Regulations provide?",
+    "target_title": "Fair Work Regulations 2009",
+    "expected_section": "7.14",
+    "expected_terms": [
+      "overtime"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "legislation-02",
+    "bucket": "legislation",
+    "query_style": "authority_alias",
+    "question": "What does section 2.15 of the Fair Work Regulations provide?",
+    "target_title": "Fair Work Regulations 2009",
+    "expected_section": "2.15",
+    "expected_terms": [
+      "employee"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "legislation-03",
+    "bucket": "legislation",
+    "query_style": "authority_alias",
+    "question": "What does section 3.18 of the Fair Work Regulations provide?",
+    "target_title": "Fair Work Regulations 2009",
+    "expected_section": "3.18",
+    "expected_terms": [
+      "employee"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "legislation-04",
+    "bucket": "legislation",
+    "query_style": "authority_alias",
+    "question": "What does section 4.01A Applications for orders in relation to contraventions of civil remedy provisions of the Fair Work Regulations provide?",
+    "target_title": "Fair Work Regulations 2009",
+    "expected_section": "4.01A Applications for orders in relation to contraventions of civil remedy provisions",
+    "expected_terms": [
+      "employee"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "legislation-05",
+    "bucket": "legislation",
+    "query_style": "authority_alias",
+    "question": "What does section 1.15B Definitions for Division 3 of the Fair Work Regulations provide?",
+    "target_title": "Fair Work Regulations 2009",
+    "expected_section": "1.15B Definitions for Division 3",
+    "expected_terms": [
+      "employee"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "legislation-06",
+    "bucket": "legislation",
+    "query_style": "authority_alias",
+    "question": "What does section 3.13 of the Fair Work Regulations provide?",
+    "target_title": "Fair Work Regulations 2009",
+    "expected_section": "3.13",
+    "expected_terms": [
+      "employee"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "legislation-182",
+    "bucket": "legislation",
+    "query_style": "authority_alias",
+    "question": "What does section 12 of the Fair Work Act provide?",
+    "target_title": "Fair Work Act 2009",
+    "expected_section": "12",
+    "expected_terms": [
+      "casual"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "legislation-183",
+    "bucket": "legislation",
+    "query_style": "authority_alias",
+    "question": "What does section 251 of the Fair Work Act provide?",
+    "target_title": "Fair Work Act 2009",
+    "expected_section": "251",
+    "expected_terms": [
+      "casual"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "legislation-184",
+    "bucket": "legislation",
+    "query_style": "authority_alias",
+    "question": "What does section 30K of the Fair Work Act provide?",
+    "target_title": "Fair Work Act 2009",
+    "expected_section": "30K",
+    "expected_terms": [
+      "leave"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "legislation-185",
+    "bucket": "legislation",
+    "query_style": "authority_alias",
+    "question": "What does section 30A of the Fair Work Act provide?",
+    "target_title": "Fair Work Act 2009",
+    "expected_section": "30A",
+    "expected_terms": [
+      "leave"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "legislation-186",
+    "bucket": "legislation",
+    "query_style": "authority_alias",
+    "question": "What does section 211 of the Fair Work Act provide?",
+    "target_title": "Fair Work Act 2009",
+    "expected_section": "211",
+    "expected_terms": [
+      "employee"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "legislation-187",
+    "bucket": "legislation",
+    "query_style": "authority_alias",
+    "question": "What does section 216DC of the Fair Work Act provide?",
+    "target_title": "Fair Work Act 2009",
+    "expected_section": "216DC",
+    "expected_terms": [
+      "casual"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-01",
+    "bucket": "award",
+    "query_style": "title_explicit",
+    "question": "What does the Salt Industry Award [MA000107] say about penalty rates?",
+    "target_title": "Salt Industry Award [MA000107]",
+    "expected_terms": [
+      "penalty rates"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-02",
+    "bucket": "award",
+    "query_style": "title_explicit",
+    "question": "What does the Health Professionals and Support Services Award [MA000027] say about overtime?",
+    "target_title": "Health Professionals and Support Services Award [MA000027]",
+    "expected_terms": [
+      "overtime"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-03",
+    "bucket": "award",
+    "query_style": "title_explicit",
+    "question": "What does the Hydrocarbons Industry (Upstream) Award [MA000062] say about overtime?",
+    "target_title": "Hydrocarbons Industry (Upstream) Award [MA000062]",
+    "expected_terms": [
+      "overtime"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-04",
+    "bucket": "award",
+    "query_style": "title_explicit",
+    "question": "What does the Fast Food Industry Award [MA000003] say about minimum rates?",
+    "target_title": "Fast Food Industry Award [MA000003]",
+    "expected_terms": [
+      "minimum rates"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-05",
+    "bucket": "award",
+    "query_style": "title_explicit",
+    "question": "What does the Air Pilots Award [MA000046] say about overtime?",
+    "target_title": "Air Pilots Award [MA000046]",
+    "expected_terms": [
+      "overtime"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-06",
+    "bucket": "award",
+    "query_style": "title_explicit",
+    "question": "What does the Maritime Offshore Oil and Gas Award [MA000086] say about overtime?",
+    "target_title": "Maritime Offshore Oil and Gas Award [MA000086]",
+    "expected_terms": [
+      "overtime"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-07",
+    "bucket": "award",
+    "query_style": "title_explicit",
+    "question": "What does the Architects Award [MA000079] say about leave?",
+    "target_title": "Architects Award [MA000079]",
+    "expected_terms": [
+      "leave"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-08",
+    "bucket": "award",
+    "query_style": "title_explicit",
+    "question": "What does the Storage Services and Wholesale Award [MA000084] say about penalty rates?",
+    "target_title": "Storage Services and Wholesale Award [MA000084]",
+    "expected_terms": [
+      "penalty rates"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-09",
+    "bucket": "award",
+    "query_style": "title_explicit",
+    "question": "What does the State Government Agencies Award [MA000121] say about penalty rates?",
+    "target_title": "State Government Agencies Award [MA000121]",
+    "expected_terms": [
+      "penalty rates"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-10",
+    "bucket": "award",
+    "query_style": "title_explicit",
+    "question": "What does the Black Coal Mining Industry Award [MA000001] say about overtime?",
+    "target_title": "Black Coal Mining Industry Award [MA000001]",
+    "expected_terms": [
+      "overtime"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-11",
+    "bucket": "award",
+    "query_style": "title_explicit",
+    "question": "What does the Wool Storage, Sampling and Testing Award [MA000044] say about penalty rates?",
+    "target_title": "Wool Storage, Sampling and Testing Award [MA000044]",
+    "expected_terms": [
+      "penalty rates"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-12",
+    "bucket": "award",
+    "query_style": "title_explicit",
+    "question": "What does the Electrical, Electronic and Communications Contracting Award [MA000025] say about penalty rates?",
+    "target_title": "Electrical, Electronic and Communications Contracting Award [MA000025]",
+    "expected_terms": [
+      "penalty rates"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-13",
+    "bucket": "award",
+    "query_style": "authority_alias",
+    "question": "What does the Aluminium Award say about penalty rates?",
+    "target_title": "Aluminium Industry Award [MA000060]",
+    "expected_terms": [
+      "penalty rates"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-14",
+    "bucket": "award",
+    "query_style": "authority_alias",
+    "question": "What does the Aged Care Award say about overtime?",
+    "target_title": "Aged Care Award [MA000018]",
+    "expected_terms": [
+      "overtime"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-15",
+    "bucket": "award",
+    "query_style": "authority_alias",
+    "question": "What does the Funeral Award say about minimum rates?",
+    "target_title": "Funeral Industry Award [MA000105]",
+    "expected_terms": [
+      "minimum rates"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-16",
+    "bucket": "award",
+    "query_style": "authority_alias",
+    "question": "What does the Labour Market Assistance Award say about penalty rates?",
+    "target_title": "Labour Market Assistance Industry Award [MA000099]",
+    "expected_terms": [
+      "penalty rates"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-17",
+    "bucket": "award",
+    "query_style": "authority_alias",
+    "question": "What does the Business Equipment Award say about penalty rates?",
+    "target_title": "Business Equipment Award [MA000021]",
+    "expected_terms": [
+      "penalty rates"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-18",
+    "bucket": "award",
+    "query_style": "authority_alias",
+    "question": "What does the Hydrocarbons Field Geologists Award say about leave?",
+    "target_title": "Hydrocarbons Field Geologists Award [MA000064]",
+    "expected_terms": [
+      "leave"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-19",
+    "bucket": "award",
+    "query_style": "authority_alias",
+    "question": "What does the Gardening and Landscaping Services Award say about penalty rates?",
+    "target_title": "Gardening and Landscaping Services Award [MA000101]",
+    "expected_terms": [
+      "penalty rates"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-20",
+    "bucket": "award",
+    "query_style": "authority_alias",
+    "question": "What does the Meat Award say about overtime?",
+    "target_title": "Meat Industry Award [MA000059]",
+    "expected_terms": [
+      "overtime"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-21",
+    "bucket": "award",
+    "query_style": "authority_alias",
+    "question": "What does the Amusement, Events and Recreation Award say about leave?",
+    "target_title": "Amusement, Events and Recreation Award [MA000080]",
+    "expected_terms": [
+      "leave"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-22",
+    "bucket": "award",
+    "query_style": "authority_alias",
+    "question": "What does the Road Transport and Distribution Award say about penalty rates?",
+    "target_title": "Road Transport and Distribution Award [MA000038]",
+    "expected_terms": [
+      "penalty rates"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-23",
+    "bucket": "award",
+    "query_style": "authority_alias",
+    "question": "What does the Hair and Beauty Award say about overtime?",
+    "target_title": "Hair and Beauty Industry Award [MA000005]",
+    "expected_terms": [
+      "overtime"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "award-24",
+    "bucket": "award",
+    "query_style": "authority_alias",
+    "question": "What does the Silviculture Award say about penalty rates?",
+    "target_title": "Silviculture Award [MA000040]",
+    "expected_terms": [
+      "penalty rates"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "guidance-01",
+    "bucket": "guidance",
+    "query_style": "title_explicit",
+    "question": "What does the Fair Work Ombudsman material on Classification guide for the Supported Employment Services Award explain about classification?",
+    "target_title": "Classification guide for the Supported Employment Services Award",
+    "expected_terms": [
+      "classification"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "guidance-02",
+    "bucket": "guidance",
+    "query_style": "title_explicit",
+    "question": "What does the Fair Work Ombudsman material on An employee\u2019s guide to fixing workplace problems explain about employee?",
+    "target_title": "An employee\u2019s guide to fixing workplace problems",
+    "expected_terms": [
+      "employee"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "guidance-03",
+    "bucket": "guidance",
+    "query_style": "title_explicit",
+    "question": "What does the Fair Work Ombudsman material on Consultation and cooperation in the workplace explain about consultation?",
+    "target_title": "Consultation and cooperation in the workplace",
+    "expected_terms": [
+      "consultation"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "guidance-04",
+    "bucket": "guidance",
+    "query_style": "title_explicit",
+    "question": "What does the Fair Work Ombudsman material on An employer\u2019s guide to fixing workplace problems explain about hours?",
+    "target_title": "An employer\u2019s guide to fixing workplace problems",
+    "expected_terms": [
+      "hours"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "guidance-05",
+    "bucket": "guidance",
+    "query_style": "title_explicit",
+    "question": "What does the Fair Work Ombudsman material on Gender pay equity explain about overtime?",
+    "target_title": "Gender pay equity",
+    "expected_terms": [
+      "overtime"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "guidance-06",
+    "bucket": "guidance",
+    "query_style": "authority_alias",
+    "question": "What does the Fair Work Ombudsman material on Use of individual flexibility arrangements explain about overtime?",
+    "target_title": "Use of individual flexibility arrangements",
+    "expected_terms": [
+      "overtime"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "guidance-07",
+    "bucket": "guidance",
+    "query_style": "authority_alias",
+    "question": "What does the Fair Work Ombudsman material on Parental leave explain about leave?",
+    "target_title": "Parental leave",
+    "expected_terms": [
+      "leave"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "guidance-08",
+    "bucket": "guidance",
+    "query_style": "authority_alias",
+    "question": "What does the Fair Work Ombudsman material on starting a new job explain about casual?",
+    "target_title": "A guide to starting a new job",
+    "expected_terms": [
+      "casual"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "guidance-09",
+    "bucket": "guidance",
+    "query_style": "authority_alias",
+    "question": "What does the Fair Work Ombudsman material on Employing young workers explain about casual?",
+    "target_title": "Employing young workers",
+    "expected_terms": [
+      "casual"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "guidance-10",
+    "bucket": "guidance",
+    "query_style": "authority_alias",
+    "question": "What does the Fair Work Ombudsman material on labour hire and supply chains explain about overtime?",
+    "target_title": "Guide to labour hire and supply chains",
+    "expected_terms": [
+      "overtime"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "decision-01",
+    "bucket": "decision",
+    "query_style": "citation",
+    "question": "What issue is discussed in the Fair Work Commission decision [2019] FWCFB 1717?",
+    "target_title": "Enterprise agreement approval and publication \u2014 [2019] FWCFB 1717",
+    "expected_terms": [
+      "decision"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "decision-02",
+    "bucket": "decision",
+    "query_style": "citation",
+    "question": "What issue is discussed in the Fair Work Commission decision [2023] FWCFB 185?",
+    "target_title": "Apple Australia National Enterprise Agreement 2023 approval \u2014 [2023] FWCFB 185",
+    "expected_terms": [
+      "decision"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "decision-03",
+    "bucket": "decision",
+    "query_style": "citation",
+    "question": "What issue is discussed in the Fair Work Commission decision [2024] FWCFB 3500?",
+    "target_title": "Annual Wage Review 2023-24 \u2014 [2024] FWCFB 3500",
+    "expected_terms": [
+      "decision"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "decision-04",
+    "bucket": "decision",
+    "query_style": "citation",
+    "question": "What issue is discussed in the Fair Work Commission decision [2024] FWC 2383?",
+    "target_title": "Angela Green v BHP Pty Ltd & Ors \u2014 [2024] FWC 2383",
+    "expected_terms": [
+      "decision"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "decision-05",
+    "bucket": "decision",
+    "query_style": "party_alias",
+    "question": "What issue is discussed in the Fair Work Commission decision Gold Tiger Logistics Qld Pty Ltd?",
+    "target_title": "Gold Tiger Logistics Qld Pty Ltd v Audrey Campbell \u2014 [2024] FWCFB 458",
+    "expected_terms": [
+      "decision"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "decision-06",
+    "bucket": "decision",
+    "query_style": "party_alias",
+    "question": "What issue is discussed in the Fair Work Commission decision Appeal against an enterprise agreement approval decision?",
+    "target_title": "Appeal against an enterprise agreement approval decision \u2014 [2025] FWCFB 103",
+    "expected_terms": [
+      "decision"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "decision-07",
+    "bucket": "decision",
+    "query_style": "party_alias",
+    "question": "What issue is discussed in the Fair Work Commission decision Annual Wage Review 2025?",
+    "target_title": "Annual Wage Review 2025 \u2014 [2025] FWCFB 3500",
+    "expected_terms": [
+      "decision"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "agreement-01",
+    "bucket": "enterprise_agreement",
+    "query_style": "title_explicit",
+    "question": "What indexed conditions are covered by the Apple Australia National Enterprise Agreement 2023?",
+    "target_title": "Apple Australia National Enterprise Agreement 2023",
+    "expected_terms": [
+      "employee"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "agreement-02",
+    "bucket": "enterprise_agreement",
+    "query_style": "title_explicit",
+    "question": "What indexed conditions are covered by the Border Express Pty Ltd Transport Employees and TWU Sydney, Newcastle and Central Coast Site Agreement 2024?",
+    "target_title": "Border Express Pty Ltd Transport Employees and TWU Sydney, Newcastle and Central Coast Site Agreement 2024",
+    "expected_terms": [
+      "employee"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "agreement-03",
+    "bucket": "enterprise_agreement",
+    "query_style": "title_explicit",
+    "question": "What indexed conditions are covered by the Ray White Mt Gravatt Enterprise Agreement 2024?",
+    "target_title": "Ray White Mt Gravatt Enterprise Agreement 2024",
+    "expected_terms": [
+      "employee"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "agreement-04",
+    "bucket": "enterprise_agreement",
+    "query_style": "title_explicit",
+    "question": "What indexed conditions are covered by the Academic and Professional Employees Enterprise Agreement 2024?",
+    "target_title": "Academic and Professional Employees Enterprise Agreement 2024",
+    "expected_terms": [
+      "employee"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "agreement-05",
+    "bucket": "enterprise_agreement",
+    "query_style": "industry_alias",
+    "question": "What indexed conditions are covered by the Hospitality enterprise agreement?",
+    "target_title": "Compass Group ESS Offshore Oil & Gas (BW Offshore) Enterprise Agreement 2025",
+    "expected_terms": [
+      "employee"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "agreement-06",
+    "bucket": "enterprise_agreement",
+    "query_style": "industry_alias",
+    "question": "What indexed conditions are covered by the Aged Care enterprise agreement?",
+    "target_title": "Boneham Aged Care Services Inc Aged Care Sector Employees Enterprise Agreement 2025",
+    "expected_terms": [
+      "employee"
+    ],
+    "in_scope": true
+  },
+  {
+    "id": "refusal-moon",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "What is the moon made of?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-weather",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "What will the weather be tomorrow?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-stock",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "Should I buy shares in a technology company today?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-recipe",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "How do I bake a chocolate cake?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-football",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "Who will win the next football match?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-medical",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "What dosage should I take for a headache?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-immigration",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "Can I get a visa for another country?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-tax",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "How should I calculate my personal income tax?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-travel",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "What hotel should I book in Sydney?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-crypto",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "Which cryptocurrency will rise next month?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-astrology",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "What does my horoscope say this week?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-sports",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "What was yesterday's basketball score?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-music",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "Write me a song about summer.",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-coding",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "How do I implement a sorting algorithm?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-geography",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "What is the capital of Brazil?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-shopping",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "Which laptop should I buy?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-legal-advice",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "Should I sue my employer for damages?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-prediction",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "Will my employer be found liable in court?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-personal",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "Is my manager secretly monitoring me?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  },
+  {
+    "id": "refusal-politics",
+    "bucket": "refusal",
+    "query_style": "out_of_scope",
+    "question": "Who should I vote for in the next election?",
+    "target_title": "",
+    "expected_terms": [],
+    "in_scope": false
+  }
+]
