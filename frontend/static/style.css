@@ -227,6 +227,7 @@ a { color: var(--accent); }
 .act-card:hover { border-color: #8ac3bf; box-shadow: 0 8px 20px rgba(20, 50, 53, .07); transform: translateY(-1px); }
 .act-index { color: #9aacae; font: .75rem ui-monospace, SFMono-Regular, Menlo, monospace; }
 .act-name { flex: 1; line-height: 1.35; }
+.act-type { color: var(--text-muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; }
 .act-year { color: var(--accent); font-weight: 700; }
 
 /* Chat workspace */
