@@ -30,7 +30,10 @@ def catalogue() -> list[dict]:
             if not title:
                 continue
             is_download = href.lower().endswith(".docx") and source_type == "workplace_guides"
-            is_page = href.startswith(ROOT + "/tools-and-resources/" + source_type.replace("_", "-"))
+            is_page = (
+                href.startswith(ROOT + "/tools-and-resources/" + source_type.replace("_", "-"))
+                and href.rstrip("/") != index_url.rstrip("/")
+            )
             if not (is_download or is_page):
                 continue
             if href.lower().endswith(".pdf"):
