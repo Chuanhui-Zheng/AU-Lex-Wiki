@@ -46,6 +46,7 @@
       <span class="ask-orb-pulse" aria-hidden="true"></span>
     </button>
     <div class="ask-dock-panel" id="askDockPanel" aria-hidden="true">
+      <button type="button" class="ask-resize-handle" id="askResizeHandle" aria-label="Resize Ask panel"><span aria-hidden="true"></span></button>
       <div class="ask-dock-header">
         <div><span class="eyebrow"><span class="status-dot"></span> Ask WorkLaw Atlas</span><strong id="askModeLabel">Offline evidence mode</strong></div>
         <div class="ask-dock-actions">
@@ -62,7 +63,7 @@
       </div>
       <form class="ask-dock-form" id="askDockForm">
         <label class="sr-only" for="askDockInput">Ask a question</label>
-        <textarea id="askDockInput" rows="1" placeholder="Ask about a provision, definition or cross-reference…"></textarea>
+        <textarea id="askDockInput" rows="1" placeholder="Ask a question · Enter to send · Shift+Enter for a new line"></textarea>
         <button type="submit" id="askDockSubmit">Ask</button>
       </form>
     </div>

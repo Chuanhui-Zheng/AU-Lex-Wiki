@@ -244,7 +244,7 @@ function renderLibraryChat(data = null, query = '') {
 
   const form = document.createElement('form');
   form.className = 'library-chat-form';
-  form.innerHTML = '<textarea rows="1" placeholder="Ask about this legislation…"></textarea><button type="submit">Ask</button>';
+  form.innerHTML = '<textarea rows="1" placeholder="Ask a question · Enter to send · Shift+Enter for a new line"></textarea><button type="submit">Ask</button>';
   const textarea = form.querySelector('textarea');
   const submit = form.querySelector('button');
   function saveLibraryTurn(question, result) {
@@ -285,6 +285,12 @@ function renderLibraryChat(data = null, query = '') {
     applyLibraryMode();
   }));
   applyLibraryMode();
+  textarea.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      form.requestSubmit();
+    }
+  });
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const question = textarea.value.trim();
