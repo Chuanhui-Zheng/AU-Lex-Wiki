@@ -14,6 +14,9 @@ CREATE TABLE IF NOT EXISTS acts (
     series_id       text,
     status          text DEFAULT 'inforce',   -- inforce | repealed
     year            int,
+    document_type   text DEFAULT 'legislation', -- legislation | award | pay_guide | guidance
+    authority_level text DEFAULT 'primary_law',  -- primary_law | instrument | official_guidance
+    publisher       text,
     source_url      text,
     fetched_at      timestamptz DEFAULT now()
 );
