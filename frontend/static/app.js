@@ -148,7 +148,10 @@ document.addEventListener('DOMContentLoaded', () => {
       data.sources.slice(0, 3).forEach(source => {
         const link = document.createElement('a');
         link.href = source.id ? `/section/${source.id}` : (source.source_url || '#');
-        link.textContent = `${source.marker} · ${source.act_name} s ${source.section_no}`;
+        const authority = source.authority_level === 'official_guidance'
+          ? 'official guidance'
+          : (source.document_type || 'primary law').replaceAll('_', ' ');
+        link.textContent = `${source.marker} · ${source.act_name} s ${source.section_no} · ${authority}`;
         sources.appendChild(link);
       });
       dockResult.appendChild(sources);
