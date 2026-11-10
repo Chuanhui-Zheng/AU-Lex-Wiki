@@ -55,12 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const dockInput = document.getElementById('askDockInput');
   const dockForm = document.getElementById('askDockForm');
   const dockSubmit = document.getElementById('askDockSubmit');
-  const resizeHandle = document.getElementById('askResizeHandle');
   const dockResult = document.getElementById('askDockResult');
   const modeLabel = document.getElementById('askModeLabel');
   const askModeStorage = 'aulex.ask_mode';
   let dragState = null;
-  let resizeState = null;
   let dragged = false;
   const settingsStorage = 'aulex.llm_settings';
   const historyStorage = 'aulex.ask_history';
@@ -147,21 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('askDockClose')?.addEventListener('click', () => setDockOpen(false));
 
-  // Resize the open panel from its top-center handle. The bottom edge stays
-  // anchored, so dragging upward makes the conversation area taller.
-  resizeHandle?.addEventListener('pointerdown', event => {
-    resizeState = {startY: event.clientY, startHeight: dock.getBoundingClientRect().height};
-    resizeHandle.setPointerCapture?.(event.pointerId);
-    event.preventDefault();
-  });
-  resizeHandle?.addEventListener('pointermove', event => {
-    if (!resizeState) return;
-    const nextHeight = Math.max(280, Math.min(window.innerHeight - 32, resizeState.startHeight + resizeState.startY - event.clientY));
-    dock.style.height = `${nextHeight}px`;
-  });
-  const stopResizing = () => { resizeState = null; };
-  resizeHandle?.addEventListener('pointerup', stopResizing);
-  resizeHandle?.addEventListener('pointercancel', stopResizing);
 
   // The collapsed assistant can be moved vertically without blocking page content.
   orb?.addEventListener('pointerdown', event => {
@@ -192,6 +175,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
   syncAskModeControls();
+
+  function autoSizeTextarea(textarea, minHeight = 40, maxHeight = 180) {
+    if (!textarea) return;
+    textarea.style.height = 'auto';
+    const nextHeight = Math.min(maxHeight, Math.max(minHeight, textarea.scrollHeight));
+    textarea.style.height = `${nextHeight}px`;
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+  }
+  dockInput?.addEventListener('input', () => autoSizeTextarea(dockInput));
+  autoSizeTextarea(dockInput);
 
   dockInput?.addEventListener('keydown', event => {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -364,6 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveAskTurn(query, data, askMode);
       renderDockHistory();
     } finally {
+      autoSizeTextarea(dockInput);
       dockSubmit.disabled = false;
       dockSubmit.textContent = 'Ask';
     }
