@@ -97,6 +97,20 @@ V3 adds FWO Workplace Guides, Fact Sheets and Best Practice Guides as
 response exposes that label so a user can distinguish a legal provision from
 an official explanation.
 
+## Evaluation
+
+Run the reproducible retrieval/refusal benchmark and regenerate the Markdown
+report:
+
+```bash
+python -m scripts.evaluate_rag
+```
+
+The report compares simple PostgreSQL FTS with the optimized title-aware
+retriever using Recall@5/source hit rate, MRR@5, evidence-term coverage,
+refusal accuracy and local latency. It does not label these proxies as RAGAS
+Faithfulness or Answer Correctness.
+
 ## Run
 
 ```bash
