@@ -73,6 +73,12 @@ python -m scripts.parse_sections
 python -m scripts.embed_and_ingest --skip-embedding
 python -m scripts.extract_entities
 
+# Add Fair Work Ombudsman explanations as official guidance.
+python -m scripts.fetch_guidance
+python -m scripts.check_guidance
+python -m scripts.parse_guidance
+python -m scripts.embed_and_ingest --skip-embedding
+
 # Optional upgrade: set ENABLE_LOCAL_EMBEDDINGS=true first, then run this to
 # add BGE-M3 vectors. It is not required for the default deployment.
 # python -m scripts.embed_and_ingest
@@ -85,6 +91,11 @@ V2 stores Award clauses as `document_type=award` and Pay Guides as separate
 tables, not substitutes for the legal instrument. The default V2 pipeline is
 text-only; set `ENABLE_LOCAL_EMBEDDINGS=true` only when the optional BGE-M3
 model is available.
+
+V3 adds FWO Workplace Guides, Fact Sheets and Best Practice Guides as
+`document_type=guidance` with `authority_level=official_guidance`. The Ask
+response exposes that label so a user can distinguish a legal provision from
+an official explanation.
 
 ## Run
 
