@@ -124,6 +124,7 @@ def build_context(sections: list[dict]) -> str:
     for i, s in enumerate(sections, 1):
         parts.append(
             f"[S{i}] {s['act_name']} — s {s['section_no']}"
+            + (f" [{s.get('authority_level', 'primary_law')}]" if s.get("authority_level") else "")
             + (f" ({s['section_heading']})" if s.get("section_heading") else "")
             + f"\n{s['body']}"
         )
@@ -136,6 +137,8 @@ def source_payload(sections: list[dict]) -> list[dict]:
             "marker": f"S{i}",
             "id": s.get("id"),
             "act_name": s["act_name"],
+            "document_type": s.get("document_type", "legislation"),
+            "authority_level": s.get("authority_level", "primary_law"),
             "section_no": s["section_no"],
             "section_heading": s.get("section_heading"),
             "body_preview": s["body"][:200],
