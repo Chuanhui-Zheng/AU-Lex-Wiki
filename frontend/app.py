@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 FastAPI web server: wiki browsing + RAG chat interface.
 """
