@@ -168,7 +168,10 @@ function appendSource(source) {
   item.id = `evidence-${source.marker || ''}`;
   const link = document.createElement('a');
   link.href = source.id ? `/section/${source.id}` : '#';
-  link.textContent = `${source.marker || 'Source'} · ${source.act_name} s ${source.section_no}`;
+  const authority = source.authority_level === 'official_guidance'
+    ? 'official guidance'
+    : (source.document_type || 'primary law').replaceAll('_', ' ');
+  link.textContent = `${source.marker || 'Source'} · ${source.act_name} s ${source.section_no} · ${authority}`;
   item.appendChild(link);
   if (source.body_preview) {
     const excerpt = document.createElement('p');
