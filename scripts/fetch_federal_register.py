@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Fetch selected in-force legal documents from the Federal Register of Legislation.
 Saves HTML content directly from /{titleId}/{date}/{date}/text/original/epub/OEBPS/
