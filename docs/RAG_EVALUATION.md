@@ -1,6 +1,6 @@
 # RAG evaluation report
 
-Generated: `2026-11-19T16:57:16Z`  
+Generated: `2026-11-19T17:00:37Z`  
 Profile: PostgreSQL full-text, title-aware retrieval, no BGE-M3 vectors.
 
 ## Resume-ready comparison
@@ -21,8 +21,8 @@ benchmark, not a claim about all Australian workplace-law questions.
 | Metric | Result |
 |---|---:|
 | Refusal accuracy | 100.0% (8/8) |
-| Median retrieval latency | 14.0 ms |
-| P95 retrieval latency | 806.4 ms |
+| Median retrieval latency | 11.4 ms |
+| P95 retrieval latency | 206.4 ms |
 
 ## What is and is not measured
 
