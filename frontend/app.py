@@ -46,8 +46,9 @@ def get_conn():
 async def index(request: Request):
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT id, name, year FROM acts ORDER BY name LIMIT 500")
-    acts = [{"id": r[0], "name": r[1], "year": r[2]} for r in cur.fetchall()]
+    cur.execute("SELECT id, name, year, document_type, authority_level FROM acts ORDER BY name LIMIT 500")
+    acts = [{"id": r[0], "name": r[1], "year": r[2],
+             "document_type": r[3], "authority_level": r[4]} for r in cur.fetchall()]
     cur.execute("SELECT COUNT(*) FROM sections")
     section_count = cur.fetchone()[0]
     cur.execute("SELECT COUNT(*) FROM section_refs")
@@ -66,11 +67,12 @@ async def act_data(act_id: int):
     conn = get_conn()
     cur = conn.cursor()
     try:
-        cur.execute("SELECT id, name, year, source_url FROM acts WHERE id=%s", (act_id,))
+        cur.execute("SELECT id, name, year, source_url, document_type, authority_level FROM acts WHERE id=%s", (act_id,))
         row = cur.fetchone()
         if not row:
             return JSONResponse({"error": "Act not found"}, status_code=404)
-        act = {"id": row[0], "name": row[1], "year": row[2], "source_url": row[3]}
+        act = {"id": row[0], "name": row[1], "year": row[2], "source_url": row[3],
+               "document_type": row[4], "authority_level": row[5]}
         cur.execute("""
             SELECT DISTINCT ON (s.compilation_id, s.section_no, s.body)
                    s.id, s.section_no, s.section_heading, s.depth,
@@ -122,12 +124,13 @@ async def section_data(section_id: int):
 async def act_view(request: Request, act_id: int):
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT id, name, year, source_url FROM acts WHERE id=%s", (act_id,))
+    cur.execute("SELECT id, name, year, source_url, document_type, authority_level FROM acts WHERE id=%s", (act_id,))
     row = cur.fetchone()
     if not row:
         cur.close(); conn.close()
         return HTMLResponse("Act not found", status_code=404)
-    act = {"id": row[0], "name": row[1], "year": row[2], "source_url": row[3]}
+    act = {"id": row[0], "name": row[1], "year": row[2], "source_url": row[3],
+           "document_type": row[4], "authority_level": row[5]}
 
     cur.execute("""
         SELECT DISTINCT ON (s.compilation_id, s.section_no, s.body)
