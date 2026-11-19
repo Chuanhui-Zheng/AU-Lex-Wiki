@@ -12,6 +12,8 @@
   "fair_work_ombudsman": {
     "awards_index": "https://www.fairwork.gov.au/employment-conditions/awards/list-of-awards",
     "guides_index": "https://www.fairwork.gov.au/tools-and-resources/workplace-guides",
+    "fact_sheets_index": "https://www.fairwork.gov.au/tools-and-resources/fact-sheets",
+    "best_practice_guides_index": "https://www.fairwork.gov.au/tools-and-resources/best-practice-guides",
     "pay_guides_index": "https://www.fairwork.gov.au/pay-and-wages/minimum-wages/pay-guides"
   }
 }
