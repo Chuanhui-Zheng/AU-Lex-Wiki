@@ -11,16 +11,16 @@ from bs4 import BeautifulSoup
 from config import config
 
 ROOT = "https://www.fairwork.gov.au"
-PAGES = {
-    "workplace_guides": "https://www.fairwork.gov.au/tools-and-resources/workplace-guides",
-    "fact_sheets": "https://www.fairwork.gov.au/tools-and-resources/fact-sheets",
-    "best_practice_guides": "https://www.fairwork.gov.au/tools-and-resources/best-practice-guides",
-}
-
-
 def catalogue() -> list[dict]:
+    manifest = json.loads(Path(config.worklaw_source_manifest).read_text())
+    fwo = manifest["fair_work_ombudsman"]
+    pages = {
+        "workplace_guides": fwo["guides_index"],
+        "fact_sheets": fwo["fact_sheets_index"],
+        "best_practice_guides": fwo["best_practice_guides_index"],
+    }
     records = {}
-    for source_type, index_url in PAGES.items():
+    for source_type, index_url in pages.items():
         response = httpx.get(index_url, timeout=60, follow_redirects=True)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
