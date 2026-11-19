@@ -1,19 +1,23 @@
+from __future__ import annotations
+
 """
 Dense vector retrieval using BGE-M3 embeddings + pgvector HNSW.
 """
 import psycopg2
 from pgvector.psycopg2 import register_vector
-from FlagEmbedding import BGEM3FlagModel
+from typing import Any, Optional
 from config import config
 
-_model: BGEM3FlagModel | None = None
+_model: Optional[Any] = None
 
 QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
 
-def get_model() -> BGEM3FlagModel:
+def get_model() -> Any:
     global _model
     if _model is None:
+        # Keep offline/full-text mode free of heavyweight model imports.
+        from FlagEmbedding import BGEM3FlagModel
         _model = BGEM3FlagModel(config.embedding_model, use_fp16=True)
     return _model
 
