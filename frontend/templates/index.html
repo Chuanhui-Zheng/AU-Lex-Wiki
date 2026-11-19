@@ -38,6 +38,7 @@
     <a href="/act/{{ act.id }}" class="act-card" data-act-id="{{ act.id }}">
       <span class="act-index">{{ "%02d"|format(loop.index) }}</span>
       <span class="act-name">{{ act.name }}</span>
+      <span class="act-type">{{ act.document_type|replace('_', ' ') }}</span>
       {% if act.year %}<span class="act-year">{{ act.year }}</span>{% endif %}
     </a>
     {% endfor %}
