@@ -5,6 +5,7 @@ FastAPI web server: wiki browsing + RAG chat interface.
 """
 import psycopg2
 import markdown as md_lib
+from pathlib import Path
 from fastapi import FastAPI, Request, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -272,6 +273,15 @@ async def chat(request: Request):
     finally:
         conn.close()
     return JSONResponse(result)
+
+
+@app.get("/api/evaluation")
+async def evaluation():
+    """Expose the latest generated benchmark to the chat/UI layer."""
+    report_path = Path("docs/RAG_EVALUATION.md")
+    if not report_path.is_file():
+        return JSONResponse({"available": False, "message": "Run python -m scripts.evaluate_rag first."})
+    return JSONResponse({"available": True, "markdown": report_path.read_text()})
 
 
 # ── Graph data (D3.js) ────────────────────────────────────────────────────────
