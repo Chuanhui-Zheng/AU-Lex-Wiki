@@ -63,6 +63,11 @@ Set `DATABASE_URL=postgresql://localhost/au_worklaw_atlas` in `.env`. The defaul
 # Fetch the configured official source set.
 python -m scripts.fetch_worklaw_sources
 
+# Fetch the current Modern Awards and official Pay Guides.
+python -m scripts.fetch_awards
+python -m scripts.check_awards
+python -m scripts.parse_awards
+
 # Parse and ingest text and metadata.
 python -m scripts.parse_sections
 python -m scripts.embed_and_ingest --skip-embedding
@@ -74,6 +79,12 @@ python -m scripts.extract_entities
 ```
 
 The fetch step is an explicit data-update operation. Starting the web server does not crawl the internet or rebuild the database.
+
+V2 stores Award clauses as `document_type=award` and Pay Guides as separate
+`document_type=pay_guide` records. Pay Guides are official guidance and rate
+tables, not substitutes for the legal instrument. The default V2 pipeline is
+text-only; set `ENABLE_LOCAL_EMBEDDINGS=true` only when the optional BGE-M3
+model is available.
 
 ## Run
 
