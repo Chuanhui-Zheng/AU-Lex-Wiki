@@ -1,6 +1,27 @@
+<div align="center">
+
 # AU-WorkLaw-Atlas
 
-Evidence-first Graph-RAG for Australian federal workplace law.
+<hr>
+
+### Evidence-first Graph-RAG for Australian workplace law.
+
+<p>
+  A source-grounded research workspace that turns official workplace-law material
+  into a searchable, versioned knowledge base with citations, evidence gates and
+  graph navigation.
+</p>
+
+<p>
+  <img src="https://img.shields.io/badge/Python-3.10%2B-555555?style=flat-square" alt="Python 3.10+">
+  <img src="https://img.shields.io/badge/PostgreSQL-FTS%20%2B%20pgvector-555555?style=flat-square" alt="PostgreSQL full-text search and pgvector">
+  <img src="https://img.shields.io/badge/RAG-evidence--first-2f8f62?style=flat-square" alt="Evidence-first RAG">
+  <img src="https://img.shields.io/badge/license-MIT-555555?style=flat-square" alt="MIT license">
+</p>
+
+</div>
+
+<hr>
 
 AU-WorkLaw-Atlas turns official workplace-law material into a searchable, versioned knowledge base. It uses PostgreSQL full-text search by default, citation-preserving RAG, and a wiki-style interface for inspecting the provision behind an answer.
 
